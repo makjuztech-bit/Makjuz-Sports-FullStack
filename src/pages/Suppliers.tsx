@@ -11,14 +11,14 @@ export default function Suppliers() {
   const { suppliers } = useData();
   const [search, setSearch] = useState('');
 
-  const filteredSuppliers = suppliers.filter(s => 
+  const filteredSuppliers = suppliers.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase()) ||
     s.materials.some(m => m.toLowerCase().includes(search.toLowerCase()))
   );
 
   return (
     <div className="animate-fade-in">
-      <PageHeader 
+      <PageHeader
         title="Suppliers"
         description="Manage your material suppliers and vendors"
       >
@@ -76,6 +76,11 @@ export default function Suppliers() {
                     </Badge>
                   ))}
                 </div>
+              </div>
+
+              <div className="flex justify-between items-center py-2 border-t border-b">
+                <span className="text-sm text-muted-foreground">Amount Paid</span>
+                <span className="font-bold text-primary">₹{supplier.amountPaid?.toLocaleString('en-IN') || 0}</span>
               </div>
 
               {supplier.notes && (

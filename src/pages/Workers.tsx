@@ -35,7 +35,10 @@ export default function Workers() {
     name: '',
     role: '',
     contact: '',
-    dailyRate: ''
+    dailyRate: '',
+    aadhar: '',
+    daysWorked: 0,
+    paymentPending: 0
   });
 
   const roles = [...new Set(workers.map(w => w.role))];
@@ -55,7 +58,10 @@ export default function Workers() {
       contact: newWorker.contact,
       status: 'Active',
       dailyRate: parseFloat(newWorker.dailyRate) || 0,
-      joinDate: new Date().toISOString().split('T')[0]
+      joinDate: new Date().toISOString().split('T')[0],
+      aadhar: newWorker.aadhar,
+      daysWorked: newWorker.daysWorked,
+      paymentPending: newWorker.paymentPending
     };
     addWorker(worker);
     setIsDialogOpen(false);
@@ -77,7 +83,7 @@ export default function Workers() {
 
   return (
     <div className="animate-fade-in">
-      <PageHeader 
+      <PageHeader
         title="Workers"
         description="Manage workforce and daily attendance"
       >
@@ -95,17 +101,17 @@ export default function Workers() {
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label>Full Name</Label>
-                <Input 
+                <Input
                   placeholder="e.g., Suresh Kumar"
                   value={newWorker.name}
-                  onChange={(e) => setNewWorker({...newWorker, name: e.target.value})}
+                  onChange={(e) => setNewWorker({ ...newWorker, name: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
-                <Label>Role</Label>
-                <Select 
-                  value={newWorker.role} 
-                  onValueChange={(v) => setNewWorker({...newWorker, role: v})}
+                <Label>Role (Work Type)</Label>
+                <Select
+                  value={newWorker.role}
+                  onValueChange={(v) => setNewWorker({ ...newWorker, role: v })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select role" />
@@ -120,20 +126,39 @@ export default function Workers() {
               </div>
               <div className="space-y-2">
                 <Label>Contact Number</Label>
-                <Input 
+                <Input
                   placeholder="e.g., 9876543210"
                   value={newWorker.contact}
-                  onChange={(e) => setNewWorker({...newWorker, contact: e.target.value})}
+                  onChange={(e) => setNewWorker({ ...newWorker, contact: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
-                <Label>Daily Rate (₹)</Label>
-                <Input 
-                  type="number"
-                  placeholder="e.g., 800"
-                  value={newWorker.dailyRate}
-                  onChange={(e) => setNewWorker({...newWorker, dailyRate: e.target.value})}
+                <Label>Aadhar Number</Label>
+                <Input
+                  placeholder="e.g., 1234 5678 9012"
+                  value={newWorker.aadhar || ''}
+                  onChange={(e) => setNewWorker({ ...newWorker, aadhar: e.target.value })}
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Daily Rate (₹)</Label>
+                  <Input
+                    type="number"
+                    placeholder="e.g., 800"
+                    value={newWorker.dailyRate}
+                    onChange={(e) => setNewWorker({ ...newWorker, dailyRate: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Days Worked</Label>
+                  <Input
+                    type="number"
+                    placeholder="e.g., 0"
+                    value={newWorker.daysWorked || 0}
+                    onChange={(e) => setNewWorker({ ...newWorker, daysWorked: parseInt(e.target.value) || 0 })}
+                  />
+                </div>
               </div>
               <Button className="w-full" onClick={handleAddWorker}>
                 Add Worker
@@ -244,13 +269,23 @@ export default function Workers() {
                       <Phone className="w-3 h-3" />
                       <span>{worker.contact}</span>
                     </div>
+                    {worker.aadhar && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <span className="font-semibold text-xs">Aadhar:</span>
+                        <span className="text-xs">{worker.aadhar}</span>
+                      </div>
+                    )}
                     <p className="text-sm">
                       <span className="text-muted-foreground">Project:</span>{' '}
                       <span className="font-medium">{getProjectName(worker.projectId)}</span>
                     </p>
-                    <p className="text-sm">
-                      <span className="text-muted-foreground">Rate:</span>{' '}
-                      <span className="font-medium">₹{worker.dailyRate}/day</span>
+                    <div className="flex justify-between items-center text-sm pt-1">
+                      <span>Rate: <span className="font-medium">₹{worker.dailyRate}</span></span>
+                      <span>Days: <span className="font-medium">{worker.daysWorked || 0}</span></span>
+                    </div>
+                    <p className="text-sm border-t mt-2 pt-1 flex justify-between">
+                      <span className="text-muted-foreground">Pending Payment:</span>
+                      <span className="font-bold text-primary">₹{worker.paymentPending || 0}</span>
                     </p>
                   </div>
                 </div>

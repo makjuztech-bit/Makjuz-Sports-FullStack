@@ -18,6 +18,7 @@ import Schedule from "./pages/Schedule";
 import DailyReports from "./pages/DailyReports";
 import WorkDoneReports from "./pages/WorkDoneReports";
 import Reports from "./pages/Reports";
+import Payments from "./pages/Payments";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
@@ -26,22 +27,22 @@ const queryClient = new QueryClient();
 // Protected Route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
-  
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return <>{children}</>;
 };
 
 // Public Route wrapper (redirects to dashboard if authenticated)
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
-  
+
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
-  
+
   return <>{children}</>;
 };
 
@@ -49,17 +50,17 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Index />} />
-      <Route 
-        path="/login" 
+      <Route
+        path="/login"
         element={
           <PublicRoute>
             <Login />
           </PublicRoute>
-        } 
+        }
       />
-      
+
       {/* Protected routes with layout */}
-      <Route 
+      <Route
         element={
           <ProtectedRoute>
             <AppLayout />
@@ -76,9 +77,10 @@ const AppRoutes = () => {
         <Route path="/daily-reports" element={<DailyReports />} />
         <Route path="/work-done" element={<WorkDoneReports />} />
         <Route path="/reports" element={<Reports />} />
+        <Route path="/payments" element={<Payments />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
-      
+
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

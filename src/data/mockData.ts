@@ -32,6 +32,7 @@ export interface Supplier {
   email: string;
   materials: string[];
   rating: number;
+  amountPaid: number;
   notes: string;
 }
 
@@ -44,16 +45,21 @@ export interface Worker {
   projectId?: string;
   dailyRate: number;
   joinDate: string;
+  aadhar?: string;
+  daysWorked?: number;
+  paymentPending?: number;
 }
 
 export interface ScheduleItem {
   id: string;
-  date: string;
+  startDate: string;
+  endDate: string;
   projectId: string;
   projectName: string;
   work: string;
   workers: string[];
   materials: { name: string; quantity: number; unit: string }[];
+  deliveryMaterials?: { name: string; quantity: number; unit: string }[];
   status: 'Scheduled' | 'In Progress' | 'Completed' | 'Delayed';
 }
 
@@ -65,6 +71,7 @@ export interface DailyReport {
   workPerformed: string;
   workersPresent: string[];
   materialsUsed: { name: string; quantity: number; unit: string }[];
+  photos?: string[];
   issues: string;
   remarks: string;
   createdBy: string;
@@ -199,6 +206,7 @@ export const suppliers: Supplier[] = [
     email: 'sales@abcturf.com',
     materials: ['Artificial Grass', 'Rubber Granules', 'Seaming Tape'],
     rating: 4.5,
+    amountPaid: 150000,
     notes: 'Reliable supplier, on-time delivery'
   },
   {
@@ -208,6 +216,7 @@ export const suppliers: Supplier[] = [
     email: 'orders@buildright.in',
     materials: ['Silica Sand', 'Drainage Pipes', 'Cement'],
     rating: 4.2,
+    amountPaid: 85000,
     notes: 'Good pricing, bulk discounts available'
   },
   {
@@ -217,41 +226,45 @@ export const suppliers: Supplier[] = [
     email: 'contact@sportbase.in',
     materials: ['Shock Pad', 'Underlay', 'Sports Flooring'],
     rating: 4.8,
+    amountPaid: 200000,
     notes: 'Premium quality, 2-year warranty'
   }
 ];
 
 // Mock Workers
 export const workers: Worker[] = [
-  { id: 'WRK001', name: 'Ramesh Kumar', role: 'Site Supervisor', contact: '9876500001', status: 'Active', projectId: 'PRJ001', dailyRate: 1200, joinDate: '2024-03-15' },
-  { id: 'WRK002', name: 'Suresh Patel', role: 'Installer', contact: '9876500002', status: 'Active', projectId: 'PRJ001', dailyRate: 800, joinDate: '2024-05-20' },
-  { id: 'WRK003', name: 'Mahesh Singh', role: 'Installer', contact: '9876500003', status: 'Active', projectId: 'PRJ001', dailyRate: 800, joinDate: '2024-06-10' },
-  { id: 'WRK004', name: 'Rajesh Yadav', role: 'Helper', contact: '9876500004', status: 'Active', projectId: 'PRJ002', dailyRate: 500, joinDate: '2024-07-01' },
-  { id: 'WRK005', name: 'Dinesh Sharma', role: 'Installer', contact: '9876500005', status: 'Active', projectId: 'PRJ002', dailyRate: 800, joinDate: '2024-04-22' },
-  { id: 'WRK006', name: 'Anil Verma', role: 'Site Supervisor', contact: '9876500006', status: 'Active', projectId: 'PRJ002', dailyRate: 1200, joinDate: '2023-11-05' },
-  { id: 'WRK007', name: 'Vijay Reddy', role: 'Helper', contact: '9876500007', status: 'On Leave', dailyRate: 500, joinDate: '2024-08-15' },
-  { id: 'WRK008', name: 'Prakash Nair', role: 'Installer', contact: '9876500008', status: 'Active', projectId: 'PRJ001', dailyRate: 800, joinDate: '2024-02-28' },
-  { id: 'WRK009', name: 'Sanjay Gupta', role: 'Driver', contact: '9876500009', status: 'Active', dailyRate: 700, joinDate: '2024-01-10' },
-  { id: 'WRK010', name: 'Kiran Das', role: 'Helper', contact: '9876500010', status: 'Active', projectId: 'PRJ001', dailyRate: 500, joinDate: '2024-09-01' },
-  { id: 'WRK011', name: 'Mohan Pillai', role: 'Installer', contact: '9876500011', status: 'Active', projectId: 'PRJ002', dailyRate: 800, joinDate: '2024-04-05' },
-  { id: 'WRK012', name: 'Gopal Krishna', role: 'Helper', contact: '9876500012', status: 'Inactive', dailyRate: 500, joinDate: '2023-09-20' }
+  { id: 'WRK001', name: 'Ramesh Kumar', role: 'Site Supervisor', contact: '9876500001', status: 'Active', projectId: 'PRJ001', dailyRate: 1200, joinDate: '2024-03-15', aadhar: '1234 5678 9012', daysWorked: 25, paymentPending: 0 },
+  { id: 'WRK002', name: 'Suresh Patel', role: 'Installer', contact: '9876500002', status: 'Active', projectId: 'PRJ001', dailyRate: 800, joinDate: '2024-05-20', aadhar: '2345 6789 0123', daysWorked: 22, paymentPending: 1600 },
+  { id: 'WRK003', name: 'Mahesh Singh', role: 'Installer', contact: '9876500003', status: 'Active', projectId: 'PRJ001', dailyRate: 800, joinDate: '2024-06-10', aadhar: '3456 7890 1234', daysWorked: 20, paymentPending: 0 },
+  { id: 'WRK004', name: 'Rajesh Yadav', role: 'Helper', contact: '9876500004', status: 'Active', projectId: 'PRJ002', dailyRate: 500, joinDate: '2024-07-01', aadhar: '4567 8901 2345', daysWorked: 18, paymentPending: 500 },
+  { id: 'WRK005', name: 'Dinesh Sharma', role: 'Installer', contact: '9876500005', status: 'Active', projectId: 'PRJ002', dailyRate: 800, joinDate: '2024-04-22', aadhar: '5678 9012 3456', daysWorked: 24, paymentPending: 0 },
+  { id: 'WRK006', name: 'Anil Verma', role: 'Site Supervisor', contact: '9876500006', status: 'Active', projectId: 'PRJ002', dailyRate: 1200, joinDate: '2023-11-05', aadhar: '6789 0123 4567', daysWorked: 26, paymentPending: 0 },
+  { id: 'WRK007', name: 'Vijay Reddy', role: 'Helper', contact: '9876500007', status: 'On Leave', dailyRate: 500, joinDate: '2024-08-15', aadhar: '7890 1234 5678', daysWorked: 10, paymentPending: 0 },
+  { id: 'WRK008', name: 'Prakash Nair', role: 'Installer', contact: '9876500008', status: 'Active', projectId: 'PRJ001', dailyRate: 800, joinDate: '2024-02-28', aadhar: '8901 2345 6789', daysWorked: 23, paymentPending: 800 },
+  { id: 'WRK009', name: 'Sanjay Gupta', role: 'Driver', contact: '9876500009', status: 'Active', dailyRate: 700, joinDate: '2024-01-10', aadhar: '9012 3456 7890', daysWorked: 25, paymentPending: 0 },
+  { id: 'WRK010', name: 'Kiran Das', role: 'Helper', contact: '9876500010', status: 'Active', projectId: 'PRJ001', dailyRate: 500, joinDate: '2024-09-01', aadhar: '0123 4567 8901', daysWorked: 21, paymentPending: 0 },
+  { id: 'WRK011', name: 'Mohan Pillai', role: 'Installer', contact: '9876500011', status: 'Active', projectId: 'PRJ002', dailyRate: 800, joinDate: '2024-04-05', aadhar: '1234 5678 9013', daysWorked: 22, paymentPending: 0 },
+  { id: 'WRK012', name: 'Gopal Krishna', role: 'Helper', contact: '9876500012', status: 'Inactive', dailyRate: 500, joinDate: '2023-09-20', aadhar: '2345 6789 0124', daysWorked: 0, paymentPending: 0 }
 ];
 
 // Mock Schedule
 export const scheduleItems: ScheduleItem[] = [
   {
     id: 'SCH001',
-    date: '2026-01-02',
+    startDate: '2026-01-02',
+    endDate: '2026-01-04',
     projectId: 'PRJ001',
     projectName: 'Arena Turf – Chennai',
     work: 'Base layer preparation and leveling',
     workers: ['Ramesh Kumar', 'Suresh Patel', 'Mahesh Singh'],
     materials: [{ name: 'Silica Sand', quantity: 2, unit: 'tons' }],
+    deliveryMaterials: [{ name: 'Cement', quantity: 50, unit: 'bags' }],
     status: 'In Progress'
   },
   {
     id: 'SCH002',
-    date: '2026-01-02',
+    startDate: '2026-01-02',
+    endDate: '2026-01-03',
     projectId: 'PRJ002',
     projectName: 'Sports Hub – Bangalore',
     work: 'Turf installation - Section B',
@@ -264,7 +277,8 @@ export const scheduleItems: ScheduleItem[] = [
   },
   {
     id: 'SCH003',
-    date: '2026-01-03',
+    startDate: '2026-01-03',
+    endDate: '2026-01-03',
     projectId: 'PRJ001',
     projectName: 'Arena Turf – Chennai',
     work: 'Shock pad installation',
@@ -274,7 +288,8 @@ export const scheduleItems: ScheduleItem[] = [
   },
   {
     id: 'SCH004',
-    date: '2026-01-01',
+    startDate: '2026-01-01',
+    endDate: '2026-01-01',
     projectId: 'PRJ001',
     projectName: 'Arena Turf – Chennai',
     work: 'Site clearing and marking',
@@ -294,6 +309,7 @@ export const dailyReports: DailyReport[] = [
     workPerformed: 'Completed site clearing, boundary marking, and initial measurements. Verified drainage points.',
     workersPresent: ['Ramesh Kumar', 'Suresh Patel', 'Mahesh Singh', 'Kiran Das'],
     materialsUsed: [],
+    photos: [],
     issues: 'None',
     remarks: 'Work completed as per schedule. Site ready for base preparation.',
     createdBy: 'Ramesh Kumar'
@@ -319,8 +335,8 @@ export const dailyReports: DailyReport[] = [
 // Dashboard Stats
 export const dashboardStats = {
   activeProjects: projects.filter(p => p.status === 'In Progress').length,
-  todayScheduled: scheduleItems.filter(s => s.date === '2026-01-02' && s.status !== 'Completed').length,
-  todayCompleted: scheduleItems.filter(s => s.date === '2026-01-02' && s.status === 'Completed').length,
+  todayScheduled: scheduleItems.filter(s => s.startDate <= '2026-01-02' && s.endDate >= '2026-01-02' && s.status !== 'Completed').length,
+  todayCompleted: scheduleItems.filter(s => s.endDate === '2026-01-02' && s.status === 'Completed').length,
   pendingTasks: scheduleItems.filter(s => s.status === 'Scheduled' || s.status === 'Delayed').length,
   workersPresent: workers.filter(w => w.status === 'Active').length,
   totalWorkers: workers.length

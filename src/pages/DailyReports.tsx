@@ -36,6 +36,7 @@ export default function DailyReports() {
     workPerformed: '',
     workersPresent: [] as string[],
     materialsUsed: '',
+    photos: [] as string[],
     issues: '',
     remarks: ''
   });
@@ -45,7 +46,7 @@ export default function DailyReports() {
 
   const filteredReports = dailyReports.filter(r => {
     const matchesSearch = r.workPerformed.toLowerCase().includes(search.toLowerCase()) ||
-                          r.projectName.toLowerCase().includes(search.toLowerCase());
+      r.projectName.toLowerCase().includes(search.toLowerCase());
     const matchesProject = projectFilter === 'all' || r.projectId === projectFilter;
     return matchesSearch && matchesProject;
   }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -64,6 +65,7 @@ export default function DailyReports() {
         quantity: 0,
         unit: ''
       })).filter(m => m.name),
+      photos: newReport.photos,
       issues: newReport.issues || 'None',
       remarks: newReport.remarks,
       createdBy: user?.name || 'Unknown'
@@ -76,14 +78,28 @@ export default function DailyReports() {
       workPerformed: '',
       workersPresent: [],
       materialsUsed: '',
+      photos: [],
       issues: '',
       remarks: ''
     });
   };
 
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Mock upload - in reality would upload to server
+    // Here we just take the file name as a placeholder
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const newPhotos = Array.from(files).map(f => URL.createObjectURL(f));
+      setNewReport(prev => ({
+        ...prev,
+        photos: [...prev.photos, ...newPhotos]
+      }));
+    }
+  };
+
   return (
     <div className="animate-fade-in">
-      <PageHeader 
+      <PageHeader
         title="Daily Reports"
         description="Submit and view daily work reports"
       >
@@ -102,17 +118,17 @@ export default function DailyReports() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Date</Label>
-                  <Input 
+                  <Input
                     type="date"
                     value={newReport.date}
-                    onChange={(e) => setNewReport({...newReport, date: e.target.value})}
+                    onChange={(e) => setNewReport({ ...newReport, date: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Project</Label>
-                  <Select 
-                    value={newReport.projectId} 
-                    onValueChange={(v) => setNewReport({...newReport, projectId: v})}
+                  <Select
+                    value={newReport.projectId}
+                    onValueChange={(v) => setNewReport({ ...newReport, projectId: v })}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select" />
@@ -128,21 +144,21 @@ export default function DailyReports() {
 
               <div className="space-y-2">
                 <Label>Work Performed</Label>
-                <Textarea 
+                <Textarea
                   placeholder="Describe the work completed today..."
                   value={newReport.workPerformed}
-                  onChange={(e) => setNewReport({...newReport, workPerformed: e.target.value})}
+                  onChange={(e) => setNewReport({ ...newReport, workPerformed: e.target.value })}
                   rows={3}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label>Workers Present</Label>
-                <Select 
+                <Select
                   value=""
                   onValueChange={(v) => {
                     if (!newReport.workersPresent.includes(v)) {
-                      setNewReport({...newReport, workersPresent: [...newReport.workersPresent, v]});
+                      setNewReport({ ...newReport, workersPresent: [...newReport.workersPresent, v] });
                     }
                   }}
                 >
@@ -158,14 +174,14 @@ export default function DailyReports() {
                 {newReport.workersPresent.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
                     {newReport.workersPresent.map(w => (
-                      <span 
-                        key={w} 
+                      <span
+                        key={w}
                         className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full flex items-center gap-1"
                       >
                         {w}
-                        <button 
+                        <button
                           onClick={() => setNewReport({
-                            ...newReport, 
+                            ...newReport,
                             workersPresent: newReport.workersPresent.filter(x => x !== w)
                           })}
                           className="ml-1 hover:text-destructive"
@@ -180,29 +196,48 @@ export default function DailyReports() {
 
               <div className="space-y-2">
                 <Label>Materials Used (comma separated)</Label>
-                <Input 
+                <Input
                   placeholder="e.g., Artificial Grass - 100 sq.ft, Sand - 2 tons"
                   value={newReport.materialsUsed}
-                  onChange={(e) => setNewReport({...newReport, materialsUsed: e.target.value})}
+                  onChange={(e) => setNewReport({ ...newReport, materialsUsed: e.target.value })}
                 />
               </div>
 
               <div className="space-y-2">
+                <Label>Photos of Work Done</Label>
+                <Input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                />
+                {newReport.photos.length > 0 && (
+                  <div className="flex gap-2 overflow-x-auto py-2">
+                    {newReport.photos.map((photo, index) => (
+                      <div key={index} className="relative w-16 h-16 shrink-0">
+                        <img src={photo} alt={`Work ${index}`} className="w-full h-full object-cover rounded-md border" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
                 <Label>Issues / Delays</Label>
-                <Textarea 
+                <Textarea
                   placeholder="Any issues or delays encountered (leave empty if none)"
                   value={newReport.issues}
-                  onChange={(e) => setNewReport({...newReport, issues: e.target.value})}
+                  onChange={(e) => setNewReport({ ...newReport, issues: e.target.value })}
                   rows={2}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label>Remarks</Label>
-                <Textarea 
+                <Textarea
                   placeholder="Additional notes or remarks..."
                   value={newReport.remarks}
-                  onChange={(e) => setNewReport({...newReport, remarks: e.target.value})}
+                  onChange={(e) => setNewReport({ ...newReport, remarks: e.target.value })}
                   rows={2}
                 />
               </div>
@@ -257,11 +292,11 @@ export default function DailyReports() {
                     <div className="flex items-center gap-2 mb-1">
                       <Calendar className="w-4 h-4 text-muted-foreground" />
                       <span className="font-semibold">
-                        {new Date(report.date).toLocaleDateString('en-IN', { 
-                          weekday: 'long', 
-                          day: '2-digit', 
-                          month: 'long', 
-                          year: 'numeric' 
+                        {new Date(report.date).toLocaleDateString('en-IN', {
+                          weekday: 'long',
+                          day: '2-digit',
+                          month: 'long',
+                          year: 'numeric'
                         })}
                       </span>
                     </div>
@@ -278,6 +313,19 @@ export default function DailyReports() {
                     <p className="text-sm">{report.workPerformed}</p>
                   </div>
 
+                  {report.photos && report.photos.length > 0 && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground mb-1">Photos</p>
+                      <div className="flex gap-2 overflow-x-auto pb-2">
+                        {report.photos.map((photo, index) => (
+                          <div key={index} className="w-24 h-24 shrink-0 rounded-md overflow-hidden border">
+                            <img src={photo} alt={`Work ${index}`} className="w-full h-full object-cover" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground mb-1">Workers Present ({report.workersPresent.length})</p>
@@ -286,7 +334,7 @@ export default function DailyReports() {
                     <div>
                       <p className="text-sm font-medium text-muted-foreground mb-1">Materials Used</p>
                       <p className="text-sm">
-                        {report.materialsUsed.length > 0 
+                        {report.materialsUsed.length > 0
                           ? report.materialsUsed.map(m => m.name).join(', ')
                           : 'None'
                         }

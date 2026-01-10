@@ -1,17 +1,18 @@
-import { 
-  LayoutDashboard, 
-  FolderKanban, 
-  Package, 
-  Truck, 
-  Users, 
-  Calendar, 
-  ClipboardList, 
-  FileCheck, 
-  BarChart3, 
+import {
+  LayoutDashboard,
+  FolderKanban,
+  Package,
+  Truck,
+  Users,
+  Calendar,
+  ClipboardList,
+  FileCheck,
+  BarChart3,
   Settings,
   LogOut,
   ChevronLeft,
-  Building2
+  Building2,
+  DollarSign
 } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -29,6 +30,7 @@ const menuItems = [
   { title: 'Daily Reports', url: '/daily-reports', icon: ClipboardList },
   { title: 'Work Done Reports', url: '/work-done', icon: FileCheck },
   { title: 'Reports', url: '/reports', icon: BarChart3 },
+  { title: 'Payments', url: '/payments', icon: DollarSign },
   { title: 'Settings', url: '/settings', icon: Settings },
 ];
 
@@ -42,7 +44,7 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
   const { user, logout } = useAuth();
 
   return (
-    <aside 
+    <aside
       className={cn(
         "fixed left-0 top-0 z-40 h-screen bg-sidebar text-sidebar-foreground transition-all duration-300 flex flex-col",
         collapsed ? "w-16" : "w-64"
@@ -63,8 +65,8 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
             <Building2 className="w-5 h-5 text-sidebar-primary-foreground" />
           </div>
         )}
-        <Button 
-          variant="ghost" 
+        <Button
+          variant="ghost"
           size="icon"
           className={cn(
             "h-8 w-8 text-sidebar-foreground hover:bg-sidebar-accent",
@@ -87,8 +89,8 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
                   to={item.url}
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
-                    isActive 
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground" 
+                    isActive
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
                       : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   )}
                 >
