@@ -10,9 +10,12 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useData } from '@/contexts/DataContext';
 
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 export default function Payments() {
     const { projects } = useData();
     const [activeTab, setActiveTab] = useState('sales');
+    const [selectedTemplate, setSelectedTemplate] = useState('classic');
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
         // Mock upload logic
@@ -23,31 +26,8 @@ export default function Payments() {
 
     const generateOverallInvoice = () => {
         const doc = new jsPDF();
-
-        // Add Logo (Mocking with text for now as we don't have a real logo file path)
-        doc.setFontSize(22);
-        doc.setTextColor(40, 100, 255); // Blue color
-        doc.text("ARENA BUILD", 20, 20);
-
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        doc.text("123 Construction Ave, Builders City", 20, 26);
-        doc.text("Phone: +91 98765 43210 | Email: accounts@arenabuild.com", 20, 31);
-
-        // Invoice Header
-        doc.setFontSize(16);
-        doc.setTextColor(0);
-        doc.text("OVERALL PAYMENT INVOICE", 140, 20);
-
-        doc.setFontSize(10);
-        doc.text(`Invoice No: INV-${Math.floor(Math.random() * 10000)}`, 140, 28);
-        doc.text(`Date: ${new Date().toLocaleDateString()}`, 140, 34);
-
-        // Line
-        doc.setLineWidth(0.5);
-        doc.line(20, 40, 190, 40);
-
-        // Table Data
+        const totalBudget = projects.reduce((acc, p) => acc + p.budget, 0);
+        const totalSpent = projects.reduce((acc, p) => acc + p.spent, 0);
         const tableData = projects.map(p => [
             p.name,
             p.status,
@@ -55,25 +35,122 @@ export default function Payments() {
             `Rs. ${p.spent.toLocaleString()}`,
             `Rs. ${(p.budget - p.spent).toLocaleString()}`
         ]);
+        const footerRow = ['Total', '', `Rs. ${totalBudget.toLocaleString()}`, `Rs. ${totalSpent.toLocaleString()}`, `Rs. ${(totalBudget - totalSpent).toLocaleString()}`];
 
-        // Footer Total
-        const totalBudget = projects.reduce((acc, p) => acc + p.budget, 0);
-        const totalSpent = projects.reduce((acc, p) => acc + p.spent, 0);
+        // Template Logic
+        switch (selectedTemplate) {
+            case 'classic': // Template 1: Classic Blue
+                doc.setFontSize(22);
+                doc.setTextColor(40, 100, 255);
+                doc.text("ARENA BUILD", 20, 20);
+                doc.setFontSize(10);
+                doc.setTextColor(100);
+                doc.text("123 Construction Ave, Builders City", 20, 26);
+                doc.text("Phone: +91 98765 43210 | Email: accounts@arenabuild.com", 20, 31);
+                doc.setFontSize(16);
+                doc.setTextColor(0);
+                doc.text("OVERALL PAYMENT INVOICE", 140, 20);
+                doc.setFontSize(10);
+                doc.text(`Invoice No: INV-${Math.floor(Math.random() * 10000)}`, 140, 28);
+                doc.text(`Date: ${new Date().toLocaleDateString()}`, 140, 34);
+                doc.setLineWidth(0.5);
+                doc.line(20, 40, 190, 40);
+                autoTable(doc, {
+                    startY: 50,
+                    head: [['Project Name', 'Status', 'Total Budget', 'Amount Spent', 'Balance']],
+                    body: [...tableData, footerRow],
+                    headStyles: { fillColor: [40, 100, 255] },
+                    footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
+                    theme: 'grid'
+                });
+                break;
 
-        autoTable(doc, {
-            startY: 50,
-            head: [['Project Name', 'Status', 'Total Budget', 'Amount Spent', 'Balance']],
-            body: [
-                ...tableData,
-                ['Total', '', `Rs. ${totalBudget.toLocaleString()}`, `Rs. ${totalSpent.toLocaleString()}`, `Rs. ${(totalBudget - totalSpent).toLocaleString()}`]
-            ],
-            headStyles: { fillColor: [40, 100, 255] },
-            footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: 'bold' },
-            theme: 'grid'
-        });
+            case 'ruby': // Template 2: Professional Red
+                doc.setFontSize(24);
+                doc.setTextColor(200, 40, 40);
+                doc.text("ARENA BUILD", 20, 25);
+                doc.setDrawColor(200, 40, 40);
+                doc.line(20, 30, 80, 30);
+                doc.setFontSize(10);
+                doc.setTextColor(80);
+                doc.text("accounts@arenabuild.com", 20, 36);
+                doc.setFontSize(18);
+                doc.setTextColor(0);
+                doc.text("PAYMENT SUMMARY", 130, 25);
+                doc.setFontSize(11);
+                doc.text(`DATE: ${new Date().toLocaleDateString()}`, 130, 32);
+                autoTable(doc, {
+                    startY: 50,
+                    head: [['Project', 'Status', 'Budget', 'Spent', 'Remaining']],
+                    body: [...tableData, footerRow],
+                    headStyles: { fillColor: [200, 40, 40], fontSize: 11 },
+                    footStyles: { fillColor: [255, 240, 240], textColor: [200, 40, 40], fontStyle: 'bold' },
+                    theme: 'grid',
+                    styles: { fontSize: 10 }
+                });
+                break;
 
-        // Save
-        doc.save('overall-payments-invoice.pdf');
+            case 'eco': // Template 3: Green/Eco
+                doc.setFillColor(46, 125, 50);
+                doc.rect(0, 0, 210, 40, 'F');
+                doc.setFontSize(22);
+                doc.setTextColor(255);
+                doc.text("ARENA BUILD", 20, 25);
+                doc.setFontSize(12);
+                doc.text("Construction Invoice", 150, 25);
+                autoTable(doc, {
+                    startY: 50,
+                    head: [['Project Name', 'Status', 'Budget', 'Spent', 'Balance']],
+                    body: [...tableData, footerRow],
+                    headStyles: { fillColor: [76, 175, 80] },
+                    alternateRowStyles: { fillColor: [232, 245, 233] },
+                    theme: 'striped'
+                });
+                break;
+
+            case 'minimal': // Template 4: Minimalist Monochrome
+                doc.setFontSize(18);
+                doc.setTextColor(0);
+                doc.text("ARENA BUILD", 20, 20);
+                doc.setFontSize(10);
+                doc.text("INVOICE REPORT", 160, 20);
+                doc.line(20, 25, 190, 25);
+                autoTable(doc, {
+                    startY: 40,
+                    head: [['PROJECT', 'STATUS', 'BUDGET', 'SPENT', 'BALANCE']],
+                    body: [...tableData, footerRow],
+                    headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], lineWidth: 0.1, lineColor: [0, 0, 0] },
+                    styles: { textColor: [0, 0, 0], lineColor: [200, 200, 200] },
+                    theme: 'plain',
+                    tableLineColor: [0, 0, 0],
+                    tableLineWidth: 0.1
+                });
+                break;
+
+            case 'slate': // Template 5: Corporate Modern
+                doc.setFillColor(51, 65, 85);
+                doc.rect(0, 0, 210, 297, 'F'); // Dark background
+                doc.setFillColor(255, 255, 255);
+                doc.roundedRect(10, 10, 190, 277, 3, 3, 'F'); // White card
+                doc.setFontSize(20);
+                doc.setTextColor(51, 65, 85);
+                doc.text("ARENA BUILD", 25, 30);
+                doc.setFontSize(10);
+                doc.setTextColor(100, 116, 139);
+                doc.text("FINANCIAL REPORT", 150, 30);
+                autoTable(doc, {
+                    startY: 50,
+                    margin: { left: 25, right: 25 },
+                    head: [['Project', 'Status', 'Total Budget', 'Total Spent', 'Balance']],
+                    body: [...tableData, footerRow],
+                    headStyles: { fillColor: [71, 85, 105], textColor: 255 },
+                    alternateRowStyles: { fillColor: [241, 245, 249] },
+                    theme: 'grid'
+                });
+                break;
+        }
+
+        doc.save(`arena-invoice-${selectedTemplate}.pdf`);
     };
 
     const UploadSection = ({ title, type }: { title: string, type: string }) => (
@@ -180,9 +257,26 @@ export default function Payments() {
                                     <div>
                                         <h3 className="text-lg font-semibold">Generate Payment Invoice</h3>
                                         <p className="text-muted-foreground text-sm max-w-sm mx-auto mt-1">
-                                            Download a professional PDF invoice summarizing all project payments, balances, and statuses.
+                                            Select a template style and download the report.
                                         </p>
                                     </div>
+
+                                    <div className="max-w-xs mx-auto">
+                                        <Label className="text-xs mb-1 block text-left">Invoice Template Style</Label>
+                                        <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                                            <SelectTrigger>
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="classic">Classic Blue</SelectItem>
+                                                <SelectItem value="ruby">Professional Red</SelectItem>
+                                                <SelectItem value="eco">Modern Green</SelectItem>
+                                                <SelectItem value="minimal">Minimalist Monochrome</SelectItem>
+                                                <SelectItem value="slate">Corporate Slate</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
                                     <Button onClick={generateOverallInvoice} className="gap-2">
                                         <Download className="w-4 h-4" />
                                         Download Invoice PDF

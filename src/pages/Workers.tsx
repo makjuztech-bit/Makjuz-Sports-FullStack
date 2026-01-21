@@ -38,7 +38,8 @@ export default function Workers() {
     dailyRate: '',
     aadhar: '',
     daysWorked: 0,
-    paymentPending: 0
+    paymentPending: 0,
+    experience: ''
   });
 
   const roles = [...new Set(workers.map(w => w.role))];
@@ -61,11 +62,12 @@ export default function Workers() {
       joinDate: new Date().toISOString().split('T')[0],
       aadhar: newWorker.aadhar,
       daysWorked: newWorker.daysWorked,
-      paymentPending: newWorker.paymentPending
+      paymentPending: newWorker.paymentPending,
+      experience: newWorker.experience
     };
     addWorker(worker);
     setIsDialogOpen(false);
-    setNewWorker({ name: '', role: '', contact: '', dailyRate: '' });
+    setNewWorker({ name: '', role: '', contact: '', dailyRate: '', aadhar: '', daysWorked: 0, paymentPending: 0, experience: '' });
   };
 
   const toggleAttendance = (workerId: string) => {
@@ -138,6 +140,14 @@ export default function Workers() {
                   placeholder="e.g., 1234 5678 9012"
                   value={newWorker.aadhar || ''}
                   onChange={(e) => setNewWorker({ ...newWorker, aadhar: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Experience</Label>
+                <Input
+                  placeholder="e.g., 5 Years"
+                  value={newWorker.experience || ''}
+                  onChange={(e) => setNewWorker({ ...newWorker, experience: e.target.value })}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -283,6 +293,12 @@ export default function Workers() {
                       <span>Rate: <span className="font-medium">₹{worker.dailyRate}</span></span>
                       <span>Days: <span className="font-medium">{worker.daysWorked || 0}</span></span>
                     </div>
+                    {worker.experience && (
+                      <p className="text-sm pt-1">
+                        <span className="text-muted-foreground">Exp:</span>{' '}
+                        <span className="font-medium">{worker.experience}</span>
+                      </p>
+                    )}
                     <p className="text-sm border-t mt-2 pt-1 flex justify-between">
                       <span className="text-muted-foreground">Pending Payment:</span>
                       <span className="font-bold text-primary">₹{worker.paymentPending || 0}</span>

@@ -1,20 +1,57 @@
 import { useState } from 'react';
-import { Search, Star, Phone, Mail, Plus } from 'lucide-react';
+import { Search, Star, Phone, Mail, Plus, MapPin, Clock } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
 import { PageHeader } from '@/components/ui/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Supplier } from '@/data/mockData';
 
 export default function Suppliers() {
-  const { suppliers } = useData();
+  const { suppliers, addSupplier } = useData();
   const [search, setSearch] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newSupplier, setNewSupplier] = useState({
+    name: '',
+    contact: '',
+    email: '',
+    yearsInTouch: '',
+    experience: '',
+    location: ''
+  });
 
   const filteredSuppliers = suppliers.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase()) ||
     s.materials.some(m => m.toLowerCase().includes(search.toLowerCase()))
   );
+
+  const handleAddSupplier = () => {
+    const supplier: Supplier = {
+      id: `SUP${String(suppliers.length + 1).padStart(3, '0')}`,
+      name: newSupplier.name,
+      contact: newSupplier.contact,
+      email: newSupplier.email,
+      materials: [], // Initial empty materials, can be added later or improved
+      rating: 0,
+      amountPaid: 0,
+      notes: '',
+      yearsInTouch: parseInt(newSupplier.yearsInTouch) || 0,
+      experience: newSupplier.experience,
+      location: newSupplier.location
+    };
+    addSupplier(supplier);
+    setIsDialogOpen(false);
+    setNewSupplier({ name: '', contact: '', email: '', yearsInTouch: '', experience: '', location: '' });
+  };
 
   return (
     <div className="animate-fade-in">
@@ -22,10 +59,75 @@ export default function Suppliers() {
         title="Suppliers"
         description="Manage your material suppliers and vendors"
       >
-        <Button>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Supplier
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Supplier
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Add New Supplier</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Supplier Name</Label>
+                <Input
+                  placeholder="e.g., ABC Turf Supplies"
+                  value={newSupplier.name}
+                  onChange={(e) => setNewSupplier({ ...newSupplier, name: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Contact Number</Label>
+                <Input
+                  placeholder="e.g., 9876543210"
+                  value={newSupplier.contact}
+                  onChange={(e) => setNewSupplier({ ...newSupplier, contact: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input
+                  placeholder="e.g., contact@supplier.com"
+                  value={newSupplier.email}
+                  onChange={(e) => setNewSupplier({ ...newSupplier, email: e.target.value })}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Experience</Label>
+                  <Input
+                    placeholder="e.g., 10 Years"
+                    value={newSupplier.experience}
+                    onChange={(e) => setNewSupplier({ ...newSupplier, experience: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Years in Touch</Label>
+                  <Input
+                    type="number"
+                    placeholder="e.g., 5"
+                    value={newSupplier.yearsInTouch}
+                    onChange={(e) => setNewSupplier({ ...newSupplier, yearsInTouch: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Location</Label>
+                <Input
+                  placeholder="e.g., Chennai, Tamil Nadu"
+                  value={newSupplier.location}
+                  onChange={(e) => setNewSupplier({ ...newSupplier, location: e.target.value })}
+                />
+              </div>
+              <Button className="w-full" onClick={handleAddSupplier}>
+                Add Supplier
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </PageHeader>
 
       {/* Search */}
@@ -65,6 +167,22 @@ export default function Suppliers() {
                   <Mail className="w-4 h-4 text-muted-foreground" />
                   <span className="text-muted-foreground">{supplier.email}</span>
                 </div>
+                {supplier.location && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <MapPin className="w-4 h-4 text-muted-foreground" />
+                    <span>{supplier.location}</span>
+                  </div>
+                )}
+                {(supplier.experience || supplier.yearsInTouch) && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Clock className="w-4 h-4 text-muted-foreground" />
+                    <span>
+                      {supplier.experience ? `${supplier.experience} Exp.` : ''}
+                      {supplier.experience && supplier.yearsInTouch ? ' • ' : ''}
+                      {supplier.yearsInTouch ? `${supplier.yearsInTouch} Years with us` : ''}
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div>

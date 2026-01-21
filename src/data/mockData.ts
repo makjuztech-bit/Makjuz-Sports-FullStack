@@ -34,6 +34,9 @@ export interface Supplier {
   rating: number;
   amountPaid: number;
   notes: string;
+  yearsInTouch: number;
+  experience: string;
+  location: string;
 }
 
 export interface Worker {
@@ -48,6 +51,7 @@ export interface Worker {
   aadhar?: string;
   daysWorked?: number;
   paymentPending?: number;
+  experience?: string;
 }
 
 export interface ScheduleItem {
@@ -207,7 +211,10 @@ export const suppliers: Supplier[] = [
     materials: ['Artificial Grass', 'Rubber Granules', 'Seaming Tape'],
     rating: 4.5,
     amountPaid: 150000,
-    notes: 'Reliable supplier, on-time delivery'
+    notes: 'Reliable supplier, on-time delivery',
+    yearsInTouch: 5,
+    experience: '10+ Years in Synthetic Turf',
+    location: 'Chennai, Tamil Nadu'
   },
   {
     id: 'SUP002',
@@ -217,7 +224,10 @@ export const suppliers: Supplier[] = [
     materials: ['Silica Sand', 'Drainage Pipes', 'Cement'],
     rating: 4.2,
     amountPaid: 85000,
-    notes: 'Good pricing, bulk discounts available'
+    notes: 'Good pricing, bulk discounts available',
+    yearsInTouch: 3,
+    experience: '8 Years in Construction Materials',
+    location: 'Bangalore, Karnataka'
   },
   {
     id: 'SUP003',
@@ -227,24 +237,27 @@ export const suppliers: Supplier[] = [
     materials: ['Shock Pad', 'Underlay', 'Sports Flooring'],
     rating: 4.8,
     amountPaid: 200000,
-    notes: 'Premium quality, 2-year warranty'
+    notes: 'Premium quality, 2-year warranty',
+    yearsInTouch: 7,
+    experience: '15 Years in Sports Infrastructure',
+    location: 'Mumbai, Maharashtra'
   }
 ];
 
 // Mock Workers
 export const workers: Worker[] = [
-  { id: 'WRK001', name: 'Ramesh Kumar', role: 'Site Supervisor', contact: '9876500001', status: 'Active', projectId: 'PRJ001', dailyRate: 1200, joinDate: '2024-03-15', aadhar: '1234 5678 9012', daysWorked: 25, paymentPending: 0 },
-  { id: 'WRK002', name: 'Suresh Patel', role: 'Installer', contact: '9876500002', status: 'Active', projectId: 'PRJ001', dailyRate: 800, joinDate: '2024-05-20', aadhar: '2345 6789 0123', daysWorked: 22, paymentPending: 1600 },
-  { id: 'WRK003', name: 'Mahesh Singh', role: 'Installer', contact: '9876500003', status: 'Active', projectId: 'PRJ001', dailyRate: 800, joinDate: '2024-06-10', aadhar: '3456 7890 1234', daysWorked: 20, paymentPending: 0 },
-  { id: 'WRK004', name: 'Rajesh Yadav', role: 'Helper', contact: '9876500004', status: 'Active', projectId: 'PRJ002', dailyRate: 500, joinDate: '2024-07-01', aadhar: '4567 8901 2345', daysWorked: 18, paymentPending: 500 },
-  { id: 'WRK005', name: 'Dinesh Sharma', role: 'Installer', contact: '9876500005', status: 'Active', projectId: 'PRJ002', dailyRate: 800, joinDate: '2024-04-22', aadhar: '5678 9012 3456', daysWorked: 24, paymentPending: 0 },
-  { id: 'WRK006', name: 'Anil Verma', role: 'Site Supervisor', contact: '9876500006', status: 'Active', projectId: 'PRJ002', dailyRate: 1200, joinDate: '2023-11-05', aadhar: '6789 0123 4567', daysWorked: 26, paymentPending: 0 },
-  { id: 'WRK007', name: 'Vijay Reddy', role: 'Helper', contact: '9876500007', status: 'On Leave', dailyRate: 500, joinDate: '2024-08-15', aadhar: '7890 1234 5678', daysWorked: 10, paymentPending: 0 },
-  { id: 'WRK008', name: 'Prakash Nair', role: 'Installer', contact: '9876500008', status: 'Active', projectId: 'PRJ001', dailyRate: 800, joinDate: '2024-02-28', aadhar: '8901 2345 6789', daysWorked: 23, paymentPending: 800 },
-  { id: 'WRK009', name: 'Sanjay Gupta', role: 'Driver', contact: '9876500009', status: 'Active', dailyRate: 700, joinDate: '2024-01-10', aadhar: '9012 3456 7890', daysWorked: 25, paymentPending: 0 },
-  { id: 'WRK010', name: 'Kiran Das', role: 'Helper', contact: '9876500010', status: 'Active', projectId: 'PRJ001', dailyRate: 500, joinDate: '2024-09-01', aadhar: '0123 4567 8901', daysWorked: 21, paymentPending: 0 },
-  { id: 'WRK011', name: 'Mohan Pillai', role: 'Installer', contact: '9876500011', status: 'Active', projectId: 'PRJ002', dailyRate: 800, joinDate: '2024-04-05', aadhar: '1234 5678 9013', daysWorked: 22, paymentPending: 0 },
-  { id: 'WRK012', name: 'Gopal Krishna', role: 'Helper', contact: '9876500012', status: 'Inactive', dailyRate: 500, joinDate: '2023-09-20', aadhar: '2345 6789 0124', daysWorked: 0, paymentPending: 0 }
+  { id: 'WRK001', name: 'Ramesh Kumar', role: 'Site Supervisor', contact: '9876500001', status: 'Active', projectId: 'PRJ001', dailyRate: 1200, joinDate: '2024-03-15', aadhar: '1234 5678 9012', daysWorked: 25, paymentPending: 0, experience: '5 Years' },
+  { id: 'WRK002', name: 'Suresh Patel', role: 'Installer', contact: '9876500002', status: 'Active', projectId: 'PRJ001', dailyRate: 800, joinDate: '2024-05-20', aadhar: '2345 6789 0123', daysWorked: 22, paymentPending: 1600, experience: '3 Years' },
+  { id: 'WRK003', name: 'Mahesh Singh', role: 'Installer', contact: '9876500003', status: 'Active', projectId: 'PRJ001', dailyRate: 800, joinDate: '2024-06-10', aadhar: '3456 7890 1234', daysWorked: 20, paymentPending: 0, experience: '2 Years' },
+  { id: 'WRK004', name: 'Rajesh Yadav', role: 'Helper', contact: '9876500004', status: 'Active', projectId: 'PRJ002', dailyRate: 500, joinDate: '2024-07-01', aadhar: '4567 8901 2345', daysWorked: 18, paymentPending: 500, experience: 'Fresher' },
+  { id: 'WRK005', name: 'Dinesh Sharma', role: 'Installer', contact: '9876500005', status: 'Active', projectId: 'PRJ002', dailyRate: 800, joinDate: '2024-04-22', aadhar: '5678 9012 3456', daysWorked: 24, paymentPending: 0, experience: '4 Years' },
+  { id: 'WRK006', name: 'Anil Verma', role: 'Site Supervisor', contact: '9876500006', status: 'Active', projectId: 'PRJ002', dailyRate: 1200, joinDate: '2023-11-05', aadhar: '6789 0123 4567', daysWorked: 26, paymentPending: 0, experience: '7 Years' },
+  { id: 'WRK007', name: 'Vijay Reddy', role: 'Helper', contact: '9876500007', status: 'On Leave', dailyRate: 500, joinDate: '2024-08-15', aadhar: '7890 1234 5678', daysWorked: 10, paymentPending: 0, experience: '1 Year' },
+  { id: 'WRK008', name: 'Prakash Nair', role: 'Installer', contact: '9876500008', status: 'Active', projectId: 'PRJ001', dailyRate: 800, joinDate: '2024-02-28', aadhar: '8901 2345 6789', daysWorked: 23, paymentPending: 800, experience: '3.5 Years' },
+  { id: 'WRK009', name: 'Sanjay Gupta', role: 'Driver', contact: '9876500009', status: 'Active', dailyRate: 700, joinDate: '2024-01-10', aadhar: '9012 3456 7890', daysWorked: 25, paymentPending: 0, experience: '6 Years' },
+  { id: 'WRK010', name: 'Kiran Das', role: 'Helper', contact: '9876500010', status: 'Active', projectId: 'PRJ001', dailyRate: 500, joinDate: '2024-09-01', aadhar: '0123 4567 8901', daysWorked: 21, paymentPending: 0, experience: 'Fresher' },
+  { id: 'WRK011', name: 'Mohan Pillai', role: 'Installer', contact: '9876500011', status: 'Active', projectId: 'PRJ002', dailyRate: 800, joinDate: '2024-04-05', aadhar: '1234 5678 9013', daysWorked: 22, paymentPending: 0, experience: '4 Years' },
+  { id: 'WRK012', name: 'Gopal Krishna', role: 'Helper', contact: '9876500012', status: 'Inactive', dailyRate: 500, joinDate: '2023-09-20', aadhar: '2345 6789 0124', daysWorked: 0, paymentPending: 0, experience: '1 Year' }
 ];
 
 // Mock Schedule

@@ -42,7 +42,7 @@ export default function Projects() {
 
   const filteredProjects = projects.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
-                          p.location.toLowerCase().includes(search.toLowerCase());
+      p.location.toLowerCase().includes(search.toLowerCase());
     const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -110,10 +110,10 @@ export default function Projects() {
       header: 'Due Date',
       cell: (project: Project) => (
         <span className="text-sm">
-          {new Date(project.expectedCompletion).toLocaleDateString('en-IN', { 
-            day: '2-digit', 
-            month: 'short', 
-            year: 'numeric' 
+          {new Date(project.expectedCompletion).toLocaleDateString('en-IN', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
           })}
         </span>
       )
@@ -131,94 +131,99 @@ export default function Projects() {
 
   return (
     <div className="animate-fade-in">
-      <PageHeader 
+      <PageHeader
         title="Projects"
         description="Manage your arena and turf construction projects"
       >
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              New Project
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Create New Project</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Project Name</Label>
-                <Input 
-                  id="name" 
-                  placeholder="e.g., Arena Turf - Hyderabad"
-                  value={newProject.name}
-                  onChange={(e) => setNewProject({...newProject, name: e.target.value})}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="turfType">Turf Type</Label>
-                <Select 
-                  value={newProject.turfType} 
-                  onValueChange={(v) => setNewProject({...newProject, turfType: v as Project['turfType']})}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Cricket">Cricket</SelectItem>
-                    <SelectItem value="Football">Football</SelectItem>
-                    <SelectItem value="Multi-Sport">Multi-Sport</SelectItem>
-                    <SelectItem value="Tennis">Tennis</SelectItem>
-                    <SelectItem value="Badminton">Badminton</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
-                <Input 
-                  id="location" 
-                  placeholder="e.g., Hyderabad, Telangana"
-                  value={newProject.location}
-                  onChange={(e) => setNewProject({...newProject, location: e.target.value})}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="startDate">Start Date</Label>
-                  <Input 
-                    id="startDate" 
-                    type="date"
-                    value={newProject.startDate}
-                    onChange={(e) => setNewProject({...newProject, startDate: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="endDate">Expected Completion</Label>
-                  <Input 
-                    id="endDate" 
-                    type="date"
-                    value={newProject.expectedCompletion}
-                    onChange={(e) => setNewProject({...newProject, expectedCompletion: e.target.value})}
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="budget">Budget (₹)</Label>
-                <Input 
-                  id="budget" 
-                  type="number"
-                  placeholder="e.g., 2500000"
-                  value={newProject.budget}
-                  onChange={(e) => setNewProject({...newProject, budget: e.target.value})}
-                />
-              </div>
-              <Button className="w-full" onClick={handleAddProject}>
-                Create Project
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => navigate('/compare')}>
+            Compare Projects
+          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                New Project
               </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Create New Project</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Project Name</Label>
+                  <Input
+                    id="name"
+                    placeholder="e.g., Arena Turf - Hyderabad"
+                    value={newProject.name}
+                    onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="turfType">Turf Type</Label>
+                  <Select
+                    value={newProject.turfType}
+                    onValueChange={(v) => setNewProject({ ...newProject, turfType: v as Project['turfType'] })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Cricket">Cricket</SelectItem>
+                      <SelectItem value="Football">Football</SelectItem>
+                      <SelectItem value="Multi-Sport">Multi-Sport</SelectItem>
+                      <SelectItem value="Tennis">Tennis</SelectItem>
+                      <SelectItem value="Badminton">Badminton</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    placeholder="e.g., Hyderabad, Telangana"
+                    value={newProject.location}
+                    onChange={(e) => setNewProject({ ...newProject, location: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="startDate">Start Date</Label>
+                    <Input
+                      id="startDate"
+                      type="date"
+                      value={newProject.startDate}
+                      onChange={(e) => setNewProject({ ...newProject, startDate: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="endDate">Expected Completion</Label>
+                    <Input
+                      id="endDate"
+                      type="date"
+                      value={newProject.expectedCompletion}
+                      onChange={(e) => setNewProject({ ...newProject, expectedCompletion: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="budget">Budget (₹)</Label>
+                  <Input
+                    id="budget"
+                    type="number"
+                    placeholder="e.g., 2500000"
+                    value={newProject.budget}
+                    onChange={(e) => setNewProject({ ...newProject, budget: e.target.value })}
+                  />
+                </div>
+                <Button className="w-full" onClick={handleAddProject}>
+                  Create Project
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </PageHeader>
 
       {/* Filters */}
@@ -247,8 +252,8 @@ export default function Projects() {
         </Select>
       </div>
 
-      <DataTable 
-        columns={columns} 
+      <DataTable
+        columns={columns}
         data={filteredProjects}
         onRowClick={(project) => navigate(`/projects/${project.id}`)}
         emptyMessage="No projects found"

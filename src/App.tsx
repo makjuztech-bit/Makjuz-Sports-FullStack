@@ -19,6 +19,7 @@ import DailyReports from "./pages/DailyReports";
 import WorkDoneReports from "./pages/WorkDoneReports";
 import Reports from "./pages/Reports";
 import Payments from "./pages/Payments";
+import CompareProjects from "./pages/CompareProjects";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
@@ -78,6 +79,7 @@ const AppRoutes = () => {
         <Route path="/work-done" element={<WorkDoneReports />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/payments" element={<Payments />} />
+        <Route path="/compare" element={<CompareProjects />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
 

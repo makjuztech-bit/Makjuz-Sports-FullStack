@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { 
-  projects as initialProjects, 
+import {
+  projects as initialProjects,
   materials as initialMaterials,
   suppliers as initialSuppliers,
   workers as initialWorkers,
@@ -25,6 +25,8 @@ interface DataContextType {
   updateProject: (id: string, updates: Partial<Project>) => void;
   addMaterial: (material: Material) => void;
   updateMaterial: (id: string, updates: Partial<Material>) => void;
+  addSupplier: (supplier: Supplier) => void;
+  updateSupplier: (id: string, updates: Partial<Supplier>) => void;
   addWorker: (worker: Worker) => void;
   updateWorker: (id: string, updates: Partial<Worker>) => void;
   addScheduleItem: (item: ScheduleItem) => void;
@@ -38,7 +40,7 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [projects, setProjects] = useState<Project[]>(initialProjects);
   const [materials, setMaterials] = useState<Material[]>(initialMaterials);
-  const [suppliers] = useState<Supplier[]>(initialSuppliers);
+  const [suppliers, setSuppliers] = useState<Supplier[]>(initialSuppliers);
   const [workers, setWorkers] = useState<Worker[]>(initialWorkers);
   const [schedule, setSchedule] = useState<ScheduleItem[]>(initialSchedule);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>(initialReports);
@@ -57,6 +59,14 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const updateMaterial = (id: string, updates: Partial<Material>) => {
     setMaterials(prev => prev.map(m => m.id === id ? { ...m, ...updates } : m));
+  };
+
+  const addSupplier = (supplier: Supplier) => {
+    setSuppliers(prev => [...prev, supplier]);
+  };
+
+  const updateSupplier = (id: string, updates: Partial<Supplier>) => {
+    setSuppliers(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
   };
 
   const addWorker = (worker: Worker) => {
@@ -95,6 +105,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       updateProject,
       addMaterial,
       updateMaterial,
+      addSupplier,
+      updateSupplier,
       addWorker,
       updateWorker,
       addScheduleItem,
