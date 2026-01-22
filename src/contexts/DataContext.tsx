@@ -1,11 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import {
-  projects as initialProjects,
-  materials as initialMaterials,
-  suppliers as initialSuppliers,
-  workers as initialWorkers,
-  scheduleItems as initialSchedule,
-  dailyReports as initialReports,
   Project,
   Material,
   Supplier,
@@ -14,6 +8,8 @@ import {
   DailyReport
 } from '@/data/mockData';
 
+const API_URL = 'http://localhost:5000/api';
+
 interface DataContextType {
   projects: Project[];
   materials: Material[];
@@ -21,76 +17,237 @@ interface DataContextType {
   workers: Worker[];
   schedule: ScheduleItem[];
   dailyReports: DailyReport[];
-  addProject: (project: Project) => void;
-  updateProject: (id: string, updates: Partial<Project>) => void;
-  addMaterial: (material: Material) => void;
-  updateMaterial: (id: string, updates: Partial<Material>) => void;
-  addSupplier: (supplier: Supplier) => void;
-  updateSupplier: (id: string, updates: Partial<Supplier>) => void;
-  addWorker: (worker: Worker) => void;
-  updateWorker: (id: string, updates: Partial<Worker>) => void;
-  addScheduleItem: (item: ScheduleItem) => void;
-  updateScheduleItem: (id: string, updates: Partial<ScheduleItem>) => void;
-  addDailyReport: (report: DailyReport) => void;
-  updateDailyReport: (id: string, updates: Partial<DailyReport>) => void;
+  addProject: (project: Project) => Promise<void>;
+  updateProject: (id: string, updates: Partial<Project>) => Promise<void>;
+  addMaterial: (material: Material) => Promise<void>;
+  updateMaterial: (id: string, updates: Partial<Material>) => Promise<void>;
+  addSupplier: (supplier: Supplier) => Promise<void>;
+  updateSupplier: (id: string, updates: Partial<Supplier>) => Promise<void>;
+  addWorker: (worker: Worker) => Promise<void>;
+  updateWorker: (id: string, updates: Partial<Worker>) => Promise<void>;
+  addScheduleItem: (item: ScheduleItem) => Promise<void>;
+  updateScheduleItem: (id: string, updates: Partial<ScheduleItem>) => Promise<void>;
+  addDailyReport: (report: DailyReport | FormData) => Promise<void>;
+  updateDailyReport: (id: string, updates: Partial<DailyReport> | FormData) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [projects, setProjects] = useState<Project[]>(initialProjects);
-  const [materials, setMaterials] = useState<Material[]>(initialMaterials);
-  const [suppliers, setSuppliers] = useState<Supplier[]>(initialSuppliers);
-  const [workers, setWorkers] = useState<Worker[]>(initialWorkers);
-  const [schedule, setSchedule] = useState<ScheduleItem[]>(initialSchedule);
-  const [dailyReports, setDailyReports] = useState<DailyReport[]>(initialReports);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [materials, setMaterials] = useState<Material[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [workers, setWorkers] = useState<Worker[]>([]);
+  const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
+  const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
 
-  const addProject = (project: Project) => {
-    setProjects(prev => [...prev, project]);
+  const fetchData = async () => {
+    try {
+      const [projectsRes, materialsRes, suppliersRes, workersRes, scheduleRes, reportsRes] = await Promise.all([
+        fetch(`${API_URL}/projects`),
+        fetch(`${API_URL}/materials`),
+        fetch(`${API_URL}/suppliers`),
+        fetch(`${API_URL}/workers`),
+        fetch(`${API_URL}/schedule`),
+        fetch(`${API_URL}/daily-reports`)
+      ]);
+
+      const projectsData = await projectsRes.json();
+      const materialsData = await materialsRes.json();
+      const suppliersData = await suppliersRes.json();
+      const workersData = await workersRes.json();
+      const scheduleData = await scheduleRes.json();
+      const reportsData = await reportsRes.json();
+
+      setProjects(projectsData);
+      setMaterials(materialsData);
+      setSuppliers(suppliersData);
+      setWorkers(workersData);
+      setSchedule(scheduleData);
+      setDailyReports(reportsData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
   };
 
-  const updateProject = (id: string, updates: Partial<Project>) => {
-    setProjects(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const addProject = async (project: Project) => {
+    try {
+      const res = await fetch(`${API_URL}/projects`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(project)
+      });
+      const newProject = await res.json();
+      setProjects(prev => [...prev, newProject]);
+    } catch (error) {
+      console.error('Error adding project:', error);
+    }
   };
 
-  const addMaterial = (material: Material) => {
-    setMaterials(prev => [...prev, material]);
+  const updateProject = async (id: string, updates: Partial<Project>) => {
+    try {
+      const res = await fetch(`${API_URL}/projects/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      const updatedProject = await res.json();
+      setProjects(prev => prev.map(p => p.id === id ? updatedProject : p));
+    } catch (error) {
+      console.error('Error updating project:', error);
+    }
   };
 
-  const updateMaterial = (id: string, updates: Partial<Material>) => {
-    setMaterials(prev => prev.map(m => m.id === id ? { ...m, ...updates } : m));
+  const addMaterial = async (material: Material) => {
+    try {
+      const res = await fetch(`${API_URL}/materials`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(material)
+      });
+      const newMaterial = await res.json();
+      setMaterials(prev => [...prev, newMaterial]);
+    } catch (error) {
+      console.error('Error adding material:', error);
+    }
   };
 
-  const addSupplier = (supplier: Supplier) => {
-    setSuppliers(prev => [...prev, supplier]);
+  const updateMaterial = async (id: string, updates: Partial<Material>) => {
+    try {
+      const res = await fetch(`${API_URL}/materials/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      const updatedMaterial = await res.json();
+      setMaterials(prev => prev.map(m => m.id === id ? updatedMaterial : m));
+    } catch (error) {
+      console.error('Error updating material:', error);
+    }
   };
 
-  const updateSupplier = (id: string, updates: Partial<Supplier>) => {
-    setSuppliers(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
+  const addSupplier = async (supplier: Supplier) => {
+    try {
+      const res = await fetch(`${API_URL}/suppliers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(supplier)
+      });
+      const newSupplier = await res.json();
+      setSuppliers(prev => [...prev, newSupplier]);
+    } catch (error) {
+      console.error('Error adding supplier:', error);
+    }
   };
 
-  const addWorker = (worker: Worker) => {
-    setWorkers(prev => [...prev, worker]);
+  const updateSupplier = async (id: string, updates: Partial<Supplier>) => {
+    try {
+      const res = await fetch(`${API_URL}/suppliers/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      const updatedSupplier = await res.json();
+      setSuppliers(prev => prev.map(s => s.id === id ? updatedSupplier : s));
+    } catch (error) {
+      console.error('Error updating supplier:', error);
+    }
   };
 
-  const updateWorker = (id: string, updates: Partial<Worker>) => {
-    setWorkers(prev => prev.map(w => w.id === id ? { ...w, ...updates } : w));
+  const addWorker = async (worker: Worker) => {
+    try {
+      const res = await fetch(`${API_URL}/workers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(worker)
+      });
+      const newWorker = await res.json();
+      setWorkers(prev => [...prev, newWorker]);
+    } catch (error) {
+      console.error('Error adding worker:', error);
+    }
   };
 
-  const addScheduleItem = (item: ScheduleItem) => {
-    setSchedule(prev => [...prev, item]);
+  const updateWorker = async (id: string, updates: Partial<Worker>) => {
+    try {
+      const res = await fetch(`${API_URL}/workers/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      const updatedWorker = await res.json();
+      setWorkers(prev => prev.map(w => w.id === id ? updatedWorker : w));
+    } catch (error) {
+      console.error('Error updating worker:', error);
+    }
   };
 
-  const updateScheduleItem = (id: string, updates: Partial<ScheduleItem>) => {
-    setSchedule(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
+  const addScheduleItem = async (item: ScheduleItem) => {
+    try {
+      const res = await fetch(`${API_URL}/schedule`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item)
+      });
+      const newItem = await res.json();
+      setSchedule(prev => [...prev, newItem]);
+    } catch (error) {
+      console.error('Error adding schedule item:', error);
+    }
   };
 
-  const addDailyReport = (report: DailyReport) => {
-    setDailyReports(prev => [...prev, report]);
+  const updateScheduleItem = async (id: string, updates: Partial<ScheduleItem>) => {
+    try {
+      const res = await fetch(`${API_URL}/schedule/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates)
+      });
+      const updatedItem = await res.json();
+      setSchedule(prev => prev.map(s => s.id === id ? updatedItem : s));
+    } catch (error) {
+      console.error('Error updating schedule item:', error);
+    }
   };
 
-  const updateDailyReport = (id: string, updates: Partial<DailyReport>) => {
-    setDailyReports(prev => prev.map(r => r.id === id ? { ...r, ...updates } : r));
+  const addDailyReport = async (report: DailyReport | FormData) => {
+    try {
+      const isFormData = report instanceof FormData;
+      const headers: HeadersInit = isFormData ? {} : { 'Content-Type': 'application/json' };
+      const body = isFormData ? report : JSON.stringify(report);
+
+      const res = await fetch(`${API_URL}/daily-reports`, {
+        method: 'POST',
+        headers,
+        body
+      });
+      const newReport = await res.json();
+      setDailyReports(prev => [...prev, newReport]);
+    } catch (error) {
+      console.error('Error adding daily report:', error);
+    }
+  };
+
+  const updateDailyReport = async (id: string, updates: Partial<DailyReport> | FormData) => {
+    try {
+      const isFormData = updates instanceof FormData;
+      const headers: HeadersInit = isFormData ? {} : { 'Content-Type': 'application/json' };
+      const body = isFormData ? updates : JSON.stringify(updates);
+
+      const res = await fetch(`${API_URL}/daily-reports/${id}`, {
+        method: 'PUT',
+        headers,
+        body
+      });
+      const updatedReport = await res.json();
+      setDailyReports(prev => prev.map(r => r.id === id ? updatedReport : r));
+    } catch (error) {
+      console.error('Error updating daily report:', error);
+    }
   };
 
   return (

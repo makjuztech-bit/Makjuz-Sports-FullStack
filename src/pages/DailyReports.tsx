@@ -51,27 +51,55 @@ export default function DailyReports() {
     return matchesSearch && matchesProject;
   }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  const handleAddReport = () => {
+  const handleAddReport = async () => {
     const project = projects.find(p => p.id === newReport.projectId);
-    const report: DailyReport = {
-      id: `RPT${String(dailyReports.length + 1).padStart(3, '0')}`,
-      date: newReport.date,
-      projectId: newReport.projectId,
-      projectName: project?.name || '',
-      workPerformed: newReport.workPerformed,
-      workersPresent: newReport.workersPresent,
-      materialsUsed: newReport.materialsUsed.split(',').map(m => ({
+
+    if (selectedFiles.length > 0) {
+      const formData = new FormData();
+      formData.append('date', newReport.date);
+      formData.append('projectId', newReport.projectId);
+      formData.append('projectName', project?.name || '');
+      formData.append('workPerformed', newReport.workPerformed);
+      formData.append('workersPresent', JSON.stringify(newReport.workersPresent));
+
+      const materials = newReport.materialsUsed.split(',').map(m => ({
         name: m.trim(),
         quantity: 0,
         unit: ''
-      })).filter(m => m.name),
-      photos: newReport.photos,
-      issues: newReport.issues || 'None',
-      remarks: newReport.remarks,
-      createdBy: user?.name || 'Unknown'
-    };
-    addDailyReport(report);
+      })).filter(m => m.name);
+      formData.append('materialsUsed', JSON.stringify(materials));
+
+      formData.append('issues', newReport.issues || 'None');
+      formData.append('remarks', newReport.remarks || '');
+      formData.append('createdBy', user?.name || 'Unknown');
+
+      selectedFiles.forEach(file => {
+        formData.append('photos', file);
+      });
+
+      await addDailyReport(formData);
+    } else {
+      const report: any = {
+        date: newReport.date,
+        projectId: newReport.projectId,
+        projectName: project?.name || '',
+        workPerformed: newReport.workPerformed,
+        workersPresent: newReport.workersPresent,
+        materialsUsed: newReport.materialsUsed.split(',').map(m => ({
+          name: m.trim(),
+          quantity: 0,
+          unit: ''
+        })).filter(m => m.name),
+        photos: [],
+        issues: newReport.issues || 'None',
+        remarks: newReport.remarks,
+        createdBy: user?.name || 'Unknown'
+      };
+      await addDailyReport(report);
+    }
+
     setIsDialogOpen(false);
+    setSelectedFiles([]);
     setNewReport({
       date: new Date().toISOString().split('T')[0],
       projectId: '',
@@ -84,12 +112,15 @@ export default function DailyReports() {
     });
   };
 
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Mock upload - in reality would upload to server
-    // Here we just take the file name as a placeholder
     const files = e.target.files;
     if (files && files.length > 0) {
-      const newPhotos = Array.from(files).map(f => URL.createObjectURL(f));
+      const fileArray = Array.from(files);
+      setSelectedFiles(prev => [...prev, ...fileArray]);
+
+      const newPhotos = fileArray.map(f => URL.createObjectURL(f));
       setNewReport(prev => ({
         ...prev,
         photos: [...prev.photos, ...newPhotos]
