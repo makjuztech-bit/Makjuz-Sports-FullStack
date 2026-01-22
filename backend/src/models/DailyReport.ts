@@ -33,7 +33,7 @@ const DailyReportSchema: Schema = new Schema({
     timestamps: true,
     toJSON: {
         virtuals: true,
-        transform: function (doc, ret: any) {
+        transform: function (doc, ret: Record<string, any>) {
             ret.id = ret._id;
             delete ret._id;
             delete ret.__v;
