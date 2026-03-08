@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Search, Package, AlertTriangle } from 'lucide-react';
+import { Plus, Search, Package, AlertTriangle, Trash2 } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
 import { PageHeader } from '@/components/ui/page-header';
 import { DataTable } from '@/components/ui/data-table';
@@ -25,7 +25,7 @@ import { Material } from '@/data/mockData';
 import { Card, CardContent } from '@/components/ui/card';
 
 export default function Materials() {
-  const { materials, addMaterial, updateMaterial } = useData();
+  const { materials, addMaterial, updateMaterial, deleteMaterial } = useData();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -65,7 +65,7 @@ export default function Materials() {
   };
 
   const handleUpdateQuantity = (id: string, newQuantity: number) => {
-    updateMaterial(id, { 
+    updateMaterial(id, {
       quantity: newQuantity,
       lastUpdated: new Date().toISOString().split('T')[0]
     });
@@ -136,23 +136,38 @@ export default function Materials() {
       key: 'actions',
       header: 'Actions',
       cell: (m: Material) => (
-        <Button 
-          variant="outline" 
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            setEditingMaterial(m);
-          }}
-        >
-          Update Qty
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              setEditingMaterial(m);
+            }}
+          >
+            Update Qty
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (confirm(`Are you sure you want to delete ${m.name}?`)) {
+                deleteMaterial(m.id);
+              }
+            }}
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
       )
     }
   ];
 
   return (
     <div className="animate-fade-in">
-      <PageHeader 
+      <PageHeader
         title="Raw Materials"
         description="Manage your inventory and stock levels"
       >
@@ -170,54 +185,54 @@ export default function Materials() {
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label>Material Name</Label>
-                <Input 
+                <Input
                   placeholder="e.g., Artificial Grass"
                   value={newMaterial.name}
-                  onChange={(e) => setNewMaterial({...newMaterial, name: e.target.value})}
+                  onChange={(e) => setNewMaterial({ ...newMaterial, name: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <Label>Category</Label>
-                <Input 
+                <Input
                   placeholder="e.g., Turf, Base Material"
                   value={newMaterial.category}
-                  onChange={(e) => setNewMaterial({...newMaterial, category: e.target.value})}
+                  onChange={(e) => setNewMaterial({ ...newMaterial, category: e.target.value })}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Quantity</Label>
-                  <Input 
+                  <Input
                     type="number"
                     placeholder="100"
                     value={newMaterial.quantity}
-                    onChange={(e) => setNewMaterial({...newMaterial, quantity: e.target.value})}
+                    onChange={(e) => setNewMaterial({ ...newMaterial, quantity: e.target.value })}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Unit</Label>
-                  <Input 
+                  <Input
                     placeholder="e.g., sq.ft, tons"
                     value={newMaterial.unit}
-                    onChange={(e) => setNewMaterial({...newMaterial, unit: e.target.value})}
+                    onChange={(e) => setNewMaterial({ ...newMaterial, unit: e.target.value })}
                   />
                 </div>
               </div>
               <div className="space-y-2">
                 <Label>Minimum Stock Level</Label>
-                <Input 
+                <Input
                   type="number"
                   placeholder="50"
                   value={newMaterial.minStock}
-                  onChange={(e) => setNewMaterial({...newMaterial, minStock: e.target.value})}
+                  onChange={(e) => setNewMaterial({ ...newMaterial, minStock: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <Label>Supplier</Label>
-                <Input 
+                <Input
                   placeholder="e.g., ABC Turf Supplies"
                   value={newMaterial.supplier}
-                  onChange={(e) => setNewMaterial({...newMaterial, supplier: e.target.value})}
+                  onChange={(e) => setNewMaterial({ ...newMaterial, supplier: e.target.value })}
                 />
               </div>
               <Button className="w-full" onClick={handleAddMaterial}>
@@ -264,8 +279,8 @@ export default function Materials() {
         </Select>
       </div>
 
-      <DataTable 
-        columns={columns} 
+      <DataTable
+        columns={columns}
         data={filteredMaterials}
         emptyMessage="No materials found"
       />
@@ -283,21 +298,21 @@ export default function Materials() {
               </p>
               <div className="space-y-2">
                 <Label>New Quantity ({editingMaterial.unit})</Label>
-                <Input 
+                <Input
                   type="number"
                   defaultValue={editingMaterial.quantity}
                   id="newQuantity"
                 />
               </div>
               <div className="flex gap-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="flex-1"
                   onClick={() => setEditingMaterial(null)}
                 >
                   Cancel
                 </Button>
-                <Button 
+                <Button
                   className="flex-1"
                   onClick={() => {
                     const input = document.getElementById('newQuantity') as HTMLInputElement;

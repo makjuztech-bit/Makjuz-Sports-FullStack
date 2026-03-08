@@ -29,6 +29,10 @@ interface DataContextType {
   updateScheduleItem: (id: string, updates: Partial<ScheduleItem>) => Promise<void>;
   addDailyReport: (report: DailyReport | FormData) => Promise<void>;
   updateDailyReport: (id: string, updates: Partial<DailyReport> | FormData) => Promise<void>;
+  deleteMaterial: (id: string) => Promise<void>;
+  deleteSupplier: (id: string) => Promise<void>;
+  deleteWorker: (id: string) => Promise<void>;
+  deleteScheduleItem: (id: string) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -250,6 +254,42 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const deleteMaterial = async (id: string) => {
+    try {
+      await fetch(`${API_URL}/materials/${id}`, { method: 'DELETE' });
+      setMaterials(prev => prev.filter(m => m.id !== id));
+    } catch (error) {
+      console.error('Error deleting material:', error);
+    }
+  };
+
+  const deleteSupplier = async (id: string) => {
+    try {
+      await fetch(`${API_URL}/suppliers/${id}`, { method: 'DELETE' });
+      setSuppliers(prev => prev.filter(s => s.id !== id));
+    } catch (error) {
+      console.error('Error deleting supplier:', error);
+    }
+  };
+
+  const deleteWorker = async (id: string) => {
+    try {
+      await fetch(`${API_URL}/workers/${id}`, { method: 'DELETE' });
+      setWorkers(prev => prev.filter(w => w.id !== id));
+    } catch (error) {
+      console.error('Error deleting worker:', error);
+    }
+  };
+
+  const deleteScheduleItem = async (id: string) => {
+    try {
+      await fetch(`${API_URL}/schedule/${id}`, { method: 'DELETE' });
+      setSchedule(prev => prev.filter(s => s.id !== id));
+    } catch (error) {
+      console.error('Error deleting schedule item:', error);
+    }
+  };
+
   return (
     <DataContext.Provider value={{
       projects,
@@ -269,7 +309,11 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       addScheduleItem,
       updateScheduleItem,
       addDailyReport,
-      updateDailyReport
+      updateDailyReport,
+      deleteMaterial,
+      deleteSupplier,
+      deleteWorker,
+      deleteScheduleItem
     }}>
       {children}
     </DataContext.Provider>

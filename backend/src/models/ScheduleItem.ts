@@ -36,7 +36,7 @@ const ScheduleItemSchema: Schema = new Schema({
     timestamps: true,
     toJSON: {
         virtuals: true,
-        transform: function (doc, ret) {
+        transform: function (doc, ret: any) {
             ret.id = ret._id;
             delete ret._id;
             delete ret.__v;

@@ -11,6 +11,7 @@ import {
   Settings,
   LogOut,
   ChevronLeft,
+  ChevronRight,
   Building2,
   DollarSign
 } from 'lucide-react';
@@ -69,12 +70,11 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
           variant="ghost"
           size="icon"
           className={cn(
-            "h-8 w-8 text-sidebar-foreground hover:bg-sidebar-accent",
-            collapsed && "hidden"
+            "h-8 w-8 text-sidebar-foreground hover:bg-sidebar-accent"
           )}
           onClick={onToggle}
         >
-          <ChevronLeft className="h-4 w-4" />
+          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </Button>
       </div>
 

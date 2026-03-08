@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Search, Star, Phone, Mail, Plus, MapPin, Clock } from 'lucide-react';
+import { Search, Star, Phone, Mail, Plus, MapPin, Clock, Edit } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
+import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/ui/page-header';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,40 +18,72 @@ import {
 import { Supplier } from '@/data/mockData';
 
 export default function Suppliers() {
-  const { suppliers, addSupplier } = useData();
+  const { suppliers, addSupplier, updateSupplier } = useData();
+  const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
   const [newSupplier, setNewSupplier] = useState({
     name: '',
     contact: '',
     email: '',
     yearsInTouch: '',
     experience: '',
-    location: ''
+    location: '',
+    rating: '0'
   });
+
+  const handleOpenDialog = (supplier?: Supplier) => {
+    if (supplier) {
+      setEditingSupplier(supplier);
+      setNewSupplier({
+        name: supplier.name,
+        contact: supplier.contact,
+        email: supplier.email,
+        yearsInTouch: supplier.yearsInTouch.toString(),
+        experience: supplier.experience,
+        location: supplier.location,
+        rating: supplier.rating.toString()
+      });
+    } else {
+      setEditingSupplier(null);
+      setNewSupplier({ name: '', contact: '', email: '', yearsInTouch: '', experience: '', location: '', rating: '0' });
+    }
+    setIsDialogOpen(true);
+  };
 
   const filteredSuppliers = suppliers.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase()) ||
     s.materials.some(m => m.toLowerCase().includes(search.toLowerCase()))
   );
 
-  const handleAddSupplier = () => {
-    const supplier: Supplier = {
-      id: `SUP${String(suppliers.length + 1).padStart(3, '0')}`,
+  const handleSaveSupplier = () => {
+    const supplierData = {
       name: newSupplier.name,
       contact: newSupplier.contact,
       email: newSupplier.email,
-      materials: [], // Initial empty materials, can be added later or improved
-      rating: 0,
-      amountPaid: 0,
-      notes: '',
       yearsInTouch: parseInt(newSupplier.yearsInTouch) || 0,
       experience: newSupplier.experience,
-      location: newSupplier.location
+      location: newSupplier.location,
+      rating: parseFloat(newSupplier.rating) || 0,
     };
-    addSupplier(supplier);
+
+    if (editingSupplier) {
+      updateSupplier(editingSupplier.id, supplierData);
+      toast({ title: "Supplier updated", description: `${newSupplier.name} has been updated.` });
+    } else {
+      const supplier: Supplier = {
+        id: `SUP${String(suppliers.length + 1).padStart(3, '0')}`,
+        ...supplierData,
+        materials: [],
+        amountPaid: 0,
+        notes: '',
+      };
+      addSupplier(supplier);
+      toast({ title: "Supplier added", description: `${newSupplier.name} has been added.` });
+    }
     setIsDialogOpen(false);
-    setNewSupplier({ name: '', contact: '', email: '', yearsInTouch: '', experience: '', location: '' });
+    setNewSupplier({ name: '', contact: '', email: '', yearsInTouch: '', experience: '', location: '', rating: '0' });
   };
 
   return (
@@ -59,76 +92,89 @@ export default function Suppliers() {
         title="Suppliers"
         description="Manage your material suppliers and vendors"
       >
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Supplier
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Add New Supplier</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
+        <Button onClick={() => handleOpenDialog()}>
+          <Plus className="w-4 h-4 mr-2" />
+          Add Supplier
+        </Button>
+      </PageHeader>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editingSupplier ? 'Edit Supplier' : 'Add New Supplier'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Supplier Name</Label>
+              <Input
+                placeholder="e.g., ABC Turf Supplies"
+                value={newSupplier.name}
+                onChange={(e) => setNewSupplier({ ...newSupplier, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Contact Number</Label>
+              <Input
+                placeholder="e.g., 9876543210"
+                value={newSupplier.contact}
+                onChange={(e) => setNewSupplier({ ...newSupplier, contact: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <Input
+                placeholder="e.g., contact@supplier.com"
+                value={newSupplier.email}
+                onChange={(e) => setNewSupplier({ ...newSupplier, email: e.target.value })}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Supplier Name</Label>
+                <Label>Experience</Label>
                 <Input
-                  placeholder="e.g., ABC Turf Supplies"
-                  value={newSupplier.name}
-                  onChange={(e) => setNewSupplier({ ...newSupplier, name: e.target.value })}
+                  placeholder="e.g., 10 Years"
+                  value={newSupplier.experience}
+                  onChange={(e) => setNewSupplier({ ...newSupplier, experience: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
-                <Label>Contact Number</Label>
+                <Label>Years in Touch</Label>
                 <Input
-                  placeholder="e.g., 9876543210"
-                  value={newSupplier.contact}
-                  onChange={(e) => setNewSupplier({ ...newSupplier, contact: e.target.value })}
+                  type="number"
+                  placeholder="e.g., 5"
+                  value={newSupplier.yearsInTouch}
+                  onChange={(e) => setNewSupplier({ ...newSupplier, yearsInTouch: e.target.value })}
                 />
               </div>
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input
-                  placeholder="e.g., contact@supplier.com"
-                  value={newSupplier.email}
-                  onChange={(e) => setNewSupplier({ ...newSupplier, email: e.target.value })}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Experience</Label>
-                  <Input
-                    placeholder="e.g., 10 Years"
-                    value={newSupplier.experience}
-                    onChange={(e) => setNewSupplier({ ...newSupplier, experience: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Years in Touch</Label>
-                  <Input
-                    type="number"
-                    placeholder="e.g., 5"
-                    value={newSupplier.yearsInTouch}
-                    onChange={(e) => setNewSupplier({ ...newSupplier, yearsInTouch: e.target.value })}
-                  />
-                </div>
-              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Location</Label>
                 <Input
-                  placeholder="e.g., Chennai, Tamil Nadu"
+                  placeholder="e.g., Chennai, TN"
                   value={newSupplier.location}
                   onChange={(e) => setNewSupplier({ ...newSupplier, location: e.target.value })}
                 />
               </div>
-              <Button className="w-full" onClick={handleAddSupplier}>
-                Add Supplier
-              </Button>
+              <div className="space-y-2">
+                <Label>Rating (0-5)</Label>
+                <Input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="5"
+                  placeholder="4.5"
+                  value={newSupplier.rating}
+                  onChange={(e) => setNewSupplier({ ...newSupplier, rating: e.target.value })}
+                />
+              </div>
             </div>
-          </DialogContent>
-        </Dialog>
-      </PageHeader>
+            <Button className="w-full" onClick={handleSaveSupplier}>
+              {editingSupplier ? 'Update Supplier' : 'Add Supplier'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Search */}
       <div className="relative max-w-md mb-6">
@@ -208,10 +254,20 @@ export default function Suppliers() {
               )}
 
               <div className="flex gap-2 pt-2">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => toast({ title: "History", description: `Viewing history for ${supplier.name}...` })}
+                >
                   View History
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => handleOpenDialog(supplier)}
+                >
                   Edit
                 </Button>
               </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { PageHeader } from '@/components/ui/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +12,7 @@ import { Building2, User, Bell, Shield, Palette } from 'lucide-react';
 export default function Settings() {
   const { user } = useAuth();
   const { toast } = useToast();
-  
+
   const [companyName, setCompanyName] = useState('Arena Construction Co.');
   const [notifications, setNotifications] = useState({
     email: true,
@@ -20,7 +20,16 @@ export default function Settings() {
     daily: true
   });
 
+  useEffect(() => {
+    const savedName = localStorage.getItem('companyName');
+    const savedNotifications = localStorage.getItem('notifications');
+    if (savedName) setCompanyName(savedName);
+    if (savedNotifications) setNotifications(JSON.parse(savedNotifications));
+  }, []);
+
   const handleSave = () => {
+    localStorage.setItem('companyName', companyName);
+    localStorage.setItem('notifications', JSON.stringify(notifications));
     toast({
       title: "Settings saved",
       description: "Your preferences have been updated successfully.",
@@ -29,7 +38,7 @@ export default function Settings() {
 
   return (
     <div className="animate-fade-in">
-      <PageHeader 
+      <PageHeader
         title="Settings"
         description="Manage your account and application preferences"
       />
@@ -49,7 +58,7 @@ export default function Settings() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="companyName">Company Name</Label>
-              <Input 
+              <Input
                 id="companyName"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
@@ -118,9 +127,9 @@ export default function Settings() {
                 <p className="font-medium">Email Notifications</p>
                 <p className="text-sm text-muted-foreground">Receive updates via email</p>
               </div>
-              <Switch 
+              <Switch
                 checked={notifications.email}
-                onCheckedChange={(checked) => setNotifications({...notifications, email: checked})}
+                onCheckedChange={(checked) => setNotifications({ ...notifications, email: checked })}
               />
             </div>
             <div className="flex items-center justify-between">
@@ -128,9 +137,9 @@ export default function Settings() {
                 <p className="font-medium">Push Notifications</p>
                 <p className="text-sm text-muted-foreground">Browser push notifications</p>
               </div>
-              <Switch 
+              <Switch
                 checked={notifications.push}
-                onCheckedChange={(checked) => setNotifications({...notifications, push: checked})}
+                onCheckedChange={(checked) => setNotifications({ ...notifications, push: checked })}
               />
             </div>
             <div className="flex items-center justify-between">
@@ -138,9 +147,9 @@ export default function Settings() {
                 <p className="font-medium">Daily Summary</p>
                 <p className="text-sm text-muted-foreground">Receive daily progress summary</p>
               </div>
-              <Switch 
+              <Switch
                 checked={notifications.daily}
-                onCheckedChange={(checked) => setNotifications({...notifications, daily: checked})}
+                onCheckedChange={(checked) => setNotifications({ ...notifications, daily: checked })}
               />
             </div>
           </CardContent>

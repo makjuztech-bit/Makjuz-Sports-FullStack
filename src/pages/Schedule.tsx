@@ -25,8 +25,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { ScheduleItem } from '@/data/mockData';
 
 export default function Schedule() {
-  const { schedule, projects, workers, addScheduleItem, updateScheduleItem } = useData();
-  const [currentDate, setCurrentDate] = useState(new Date('2026-01-02'));
+  const { schedule, projects, workers, addScheduleItem, updateScheduleItem, updateWorker } = useData();
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newSchedule, setNewSchedule] = useState({
     projectId: '',
@@ -91,6 +91,15 @@ export default function Schedule() {
       status: 'Scheduled'
     };
     addScheduleItem(item);
+
+    // Sync workers with the project
+    newSchedule.workers.forEach(workerName => {
+      const worker = workers.find(w => w.name === workerName);
+      if (worker) {
+        updateWorker(worker.id, { projectId: newSchedule.projectId });
+      }
+    });
+
     setIsDialogOpen(false);
     setNewSchedule({ projectId: '', work: '', workers: [], materials: '', deliveryMaterials: '', startDate: formatDate(new Date()), endDate: formatDate(new Date()) });
   };
@@ -253,7 +262,7 @@ export default function Schedule() {
       <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
         {weekDates.map((date) => {
           const daySchedule = getScheduleForDate(date);
-          const isToday = formatDate(date) === '2026-01-02';
+          const isToday = formatDate(date) === formatDate(new Date());
 
           return (
             <Card

@@ -14,11 +14,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { StatusBadge, getStatusVariant } from '@/components/ui/status-badge';
-import { 
-  BarChart3, 
-  TrendingUp, 
-  Users, 
-  Package, 
+import {
+  BarChart3,
+  TrendingUp,
+  Users,
+  Package,
   FileDown,
   Printer,
   Calendar
@@ -46,13 +46,13 @@ export default function Reports() {
 
   return (
     <div className="animate-fade-in">
-      <PageHeader 
+      <PageHeader
         title="Reports"
         description="Generate and view comprehensive project reports"
       >
-        <Button variant="outline">
-          <FileDown className="w-4 h-4 mr-2" />
-          Export All
+        <Button variant="outline" onClick={() => window.print()}>
+          <Printer className="w-4 h-4 mr-2" />
+          Print Report
         </Button>
       </PageHeader>
 
@@ -76,19 +76,19 @@ export default function Reports() {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Start Date</label>
-              <Input 
-                type="date" 
+              <Input
+                type="date"
                 value={dateRange.start}
-                onChange={(e) => setDateRange({...dateRange, start: e.target.value})}
+                onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
                 className="w-40"
               />
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">End Date</label>
-              <Input 
-                type="date" 
+              <Input
+                type="date"
                 value={dateRange.end}
-                onChange={(e) => setDateRange({...dateRange, end: e.target.value})}
+                onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
                 className="w-40"
               />
             </div>
@@ -206,8 +206,8 @@ export default function Reports() {
                   </thead>
                   <tbody>
                     {materials.map(material => {
-                      const status = material.quantity <= material.minStock ? 'Low' : 
-                                     material.quantity <= material.minStock * 2 ? 'Medium' : 'Good';
+                      const status = material.quantity <= material.minStock ? 'Low' :
+                        material.quantity <= material.minStock * 2 ? 'Medium' : 'Good';
                       return (
                         <tr key={material.id} className="border-b hover:bg-muted/50">
                           <td className="py-3 px-4">
@@ -245,11 +245,11 @@ export default function Reports() {
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {workers.map(worker => {
-                  const workerReports = dailyReports.filter(r => 
+                  const workerReports = dailyReports.filter(r =>
                     r.workersPresent.includes(worker.name)
                   );
                   const project = projects.find(p => p.id === worker.projectId);
-                  
+
                   return (
                     <div key={worker.id} className="p-4 border rounded-lg">
                       <div className="flex items-center justify-between mb-3">
@@ -298,7 +298,7 @@ export default function Reports() {
                   const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
                   const daysElapsed = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
                   const daysRemaining = Math.max(0, Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
-                  
+
                   return (
                     <div key={project.id} className="p-4 border rounded-lg">
                       <div className="flex items-start justify-between mb-4">
@@ -310,14 +310,14 @@ export default function Reports() {
                           {project.status}
                         </StatusBadge>
                       </div>
-                      
+
                       <div className="flex items-center gap-4 text-sm mb-3">
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4 text-muted-foreground" />
                           <span>{startDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</span>
                         </div>
                         <div className="flex-1 h-2 bg-muted rounded-full relative">
-                          <div 
+                          <div
                             className="absolute left-0 top-0 h-full bg-primary rounded-full"
                             style={{ width: `${Math.min(100, (daysElapsed / totalDays) * 100)}%` }}
                           />
@@ -327,7 +327,7 @@ export default function Reports() {
                           <span>{endDate.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}</span>
                         </div>
                       </div>
-                      
+
                       <div className="flex justify-between text-xs text-muted-foreground">
                         <span>{daysElapsed} days elapsed</span>
                         <span>{daysRemaining} days remaining</span>

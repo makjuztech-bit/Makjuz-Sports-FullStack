@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Plus, Search, Filter, Phone, User, CheckCircle2 } from 'lucide-react';
+import { Plus, Search, Filter, Phone, User, CheckCircle2, Edit } from 'lucide-react';
 import { useData } from '@/contexts/DataContext';
+import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/ui/page-header';
 import { StatusBadge, getStatusVariant } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
@@ -26,10 +27,12 @@ import { Worker } from '@/data/mockData';
 
 export default function Workers() {
   const { workers, projects, addWorker, updateWorker } = useData();
+  const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingWorker, setEditingWorker] = useState<Worker | null>(null);
   const [attendance, setAttendance] = useState<Record<string, boolean>>({});
   const [newWorker, setNewWorker] = useState({
     name: '',
@@ -42,6 +45,26 @@ export default function Workers() {
     experience: ''
   });
 
+  const handleOpenDialog = (worker?: Worker) => {
+    if (worker) {
+      setEditingWorker(worker);
+      setNewWorker({
+        name: worker.name,
+        role: worker.role,
+        contact: worker.contact,
+        dailyRate: worker.dailyRate.toString(),
+        aadhar: worker.aadhar || '',
+        daysWorked: worker.daysWorked || 0,
+        paymentPending: worker.paymentPending || 0,
+        experience: worker.experience || ''
+      });
+    } else {
+      setEditingWorker(null);
+      setNewWorker({ name: '', role: '', contact: '', dailyRate: '', aadhar: '', daysWorked: 0, paymentPending: 0, experience: '' });
+    }
+    setIsDialogOpen(true);
+  };
+
   const roles = [...new Set(workers.map(w => w.role))];
 
   const filteredWorkers = workers.filter(w => {
@@ -51,21 +74,31 @@ export default function Workers() {
     return matchesSearch && matchesStatus && matchesRole;
   });
 
-  const handleAddWorker = () => {
-    const worker: Worker = {
-      id: `WRK${String(workers.length + 1).padStart(3, '0')}`,
+  const handleSaveWorker = () => {
+    const workerData = {
       name: newWorker.name,
       role: newWorker.role,
       contact: newWorker.contact,
-      status: 'Active',
       dailyRate: parseFloat(newWorker.dailyRate) || 0,
-      joinDate: new Date().toISOString().split('T')[0],
       aadhar: newWorker.aadhar,
       daysWorked: newWorker.daysWorked,
       paymentPending: newWorker.paymentPending,
       experience: newWorker.experience
     };
-    addWorker(worker);
+
+    if (editingWorker) {
+      updateWorker(editingWorker.id, workerData);
+      toast({ title: "Worker updated", description: `${newWorker.name} has been updated.` });
+    } else {
+      const worker: Worker = {
+        id: `WRK${String(workers.length + 1).padStart(3, '0')}`,
+        ...workerData,
+        status: 'Active',
+        joinDate: new Date().toISOString().split('T')[0],
+      };
+      addWorker(worker);
+      toast({ title: "Worker added", description: `${newWorker.name} has been added.` });
+    }
     setIsDialogOpen(false);
     setNewWorker({ name: '', role: '', contact: '', dailyRate: '', aadhar: '', daysWorked: 0, paymentPending: 0, experience: '' });
   };
@@ -89,94 +122,111 @@ export default function Workers() {
         title="Workers"
         description="Manage workforce and daily attendance"
       >
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Worker
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Add New Worker</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
+        <Button onClick={() => handleOpenDialog()}>
+          <Plus className="w-4 h-4 mr-2" />
+          Add Worker
+        </Button>
+      </PageHeader>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editingWorker ? 'Edit Worker' : 'Add New Worker'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Full Name</Label>
+              <Input
+                placeholder="e.g., Suresh Kumar"
+                value={newWorker.name}
+                onChange={(e) => setNewWorker({ ...newWorker, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Role (Work Type)</Label>
+              <Select
+                value={newWorker.role}
+                onValueChange={(v) => setNewWorker({ ...newWorker, role: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Site Supervisor">Site Supervisor</SelectItem>
+                  <SelectItem value="Installer">Installer</SelectItem>
+                  <SelectItem value="Helper">Helper</SelectItem>
+                  <SelectItem value="Driver">Driver</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {editingWorker && (
               <div className="space-y-2">
-                <Label>Full Name</Label>
-                <Input
-                  placeholder="e.g., Suresh Kumar"
-                  value={newWorker.name}
-                  onChange={(e) => setNewWorker({ ...newWorker, name: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Role (Work Type)</Label>
+                <Label>Status</Label>
                 <Select
-                  value={newWorker.role}
-                  onValueChange={(v) => setNewWorker({ ...newWorker, role: v })}
+                  value={editingWorker.status}
+                  onValueChange={(v) => updateWorker(editingWorker.id, { status: v as any })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Site Supervisor">Site Supervisor</SelectItem>
-                    <SelectItem value="Installer">Installer</SelectItem>
-                    <SelectItem value="Helper">Helper</SelectItem>
-                    <SelectItem value="Driver">Driver</SelectItem>
+                    <SelectItem value="Active">Active</SelectItem>
+                    <SelectItem value="On Leave">On Leave</SelectItem>
+                    <SelectItem value="Inactive">Inactive</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label>Contact Number</Label>
-                <Input
-                  placeholder="e.g., 9876543210"
-                  value={newWorker.contact}
-                  onChange={(e) => setNewWorker({ ...newWorker, contact: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Aadhar Number</Label>
-                <Input
-                  placeholder="e.g., 1234 5678 9012"
-                  value={newWorker.aadhar || ''}
-                  onChange={(e) => setNewWorker({ ...newWorker, aadhar: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Experience</Label>
-                <Input
-                  placeholder="e.g., 5 Years"
-                  value={newWorker.experience || ''}
-                  onChange={(e) => setNewWorker({ ...newWorker, experience: e.target.value })}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Daily Rate (₹)</Label>
-                  <Input
-                    type="number"
-                    placeholder="e.g., 800"
-                    value={newWorker.dailyRate}
-                    onChange={(e) => setNewWorker({ ...newWorker, dailyRate: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Days Worked</Label>
-                  <Input
-                    type="number"
-                    placeholder="e.g., 0"
-                    value={newWorker.daysWorked || 0}
-                    onChange={(e) => setNewWorker({ ...newWorker, daysWorked: parseInt(e.target.value) || 0 })}
-                  />
-                </div>
-              </div>
-              <Button className="w-full" onClick={handleAddWorker}>
-                Add Worker
-              </Button>
+            )}
+            <div className="space-y-2">
+              <Label>Contact Number</Label>
+              <Input
+                placeholder="e.g., 9876543210"
+                value={newWorker.contact}
+                onChange={(e) => setNewWorker({ ...newWorker, contact: e.target.value })}
+              />
             </div>
-          </DialogContent>
-        </Dialog>
-      </PageHeader>
+            <div className="space-y-2">
+              <Label>Aadhar Number</Label>
+              <Input
+                placeholder="e.g., 1234 5678 9012"
+                value={newWorker.aadhar || ''}
+                onChange={(e) => setNewWorker({ ...newWorker, aadhar: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Experience</Label>
+              <Input
+                placeholder="e.g., 5 Years"
+                value={newWorker.experience || ''}
+                onChange={(e) => setNewWorker({ ...newWorker, experience: e.target.value })}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Daily Rate (₹)</Label>
+                <Input
+                  type="number"
+                  placeholder="e.g., 800"
+                  value={newWorker.dailyRate}
+                  onChange={(e) => setNewWorker({ ...newWorker, dailyRate: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Days Worked</Label>
+                <Input
+                  type="number"
+                  placeholder="e.g., 0"
+                  value={newWorker.daysWorked || 0}
+                  onChange={(e) => setNewWorker({ ...newWorker, daysWorked: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+            </div>
+            <Button className="w-full" onClick={handleSaveWorker}>
+              {editingWorker ? 'Update Worker' : 'Add Worker'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -272,6 +322,14 @@ export default function Workers() {
                     <StatusBadge variant={getStatusVariant(worker.status)}>
                       {worker.status}
                     </StatusBadge>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 ml-1"
+                      onClick={() => handleOpenDialog(worker)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
                   </div>
 
                   <div className="mt-3 space-y-1">
