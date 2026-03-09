@@ -1,5 +1,5 @@
 import express from 'express';
-import { upload } from '../config/cloudinary';
+import { upload } from '../config/upload';
 import {
     getDailyReports,
     createDailyReport,

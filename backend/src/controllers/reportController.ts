@@ -14,7 +14,7 @@ export const createDailyReport = async (req: Request, res: Response) => {
     try {
         let photos: string[] = [];
         if (req.files && Array.isArray(req.files)) {
-            photos = (req.files as any[]).map(file => file.path);
+            photos = (req.files as any[]).map(file => `/uploads/${file.filename}`);
         }
 
         const reportData = { ...req.body };
@@ -58,7 +58,7 @@ export const updateDailyReport = async (req: Request, res: Response) => {
             // Handle file uploads on update if necessary
             let photos: string[] = [];
             if (req.files && Array.isArray(req.files)) {
-                photos = (req.files as any[]).map(file => file.path);
+                photos = (req.files as any[]).map(file => `/uploads/${file.filename}`);
             }
 
             const updates = { ...req.body };
