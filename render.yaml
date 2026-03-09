@@ -14,6 +14,8 @@ services:
         sync: false
       - key: NODE_ENV
         value: production
+      - key: FRONTEND_URL
+        value: https://makjuz-sports-full-stack.vercel.app/
 
   # Frontend Service (Static Site)
   - type: web
@@ -22,6 +24,5 @@ services:
     plan: free
     buildCommand: npm install && npm run build
     publishPath: dist
-    envVars:
       - key: VITE_API_URL
-        value: https://arenabuild-backend.onrender.com/api # Replace with your actual backend URL after first deployment
+        value: https://arenabuild-backend.onrender.com/api
